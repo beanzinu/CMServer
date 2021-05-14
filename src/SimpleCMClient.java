@@ -1,19 +1,26 @@
+import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.GridLayout;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Iterator;
+import java.util.StringTokenizer;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.StyledDocument;
 
 import kr.ac.konkuk.ccslab.cm.entity.CMSessionInfo;
+import kr.ac.konkuk.ccslab.cm.entity.CMUser;
 import kr.ac.konkuk.ccslab.cm.event.CMSessionEvent;
 import kr.ac.konkuk.ccslab.cm.info.CMInfo;
 import kr.ac.konkuk.ccslab.cm.manager.CMMqttManager;
@@ -26,6 +33,10 @@ public class SimpleCMClient extends JFrame {
 	// 원격지로부터 수신한 Event 전달 받기 위해서 
 	//  ( current : NULL )
 	CMClientEventHandler m_eventHandler;
+	CMMqttManager mqttManager ;
+
+
+	
 	
 	// MAIN MENU
 //	private JPanel loginPanel = new JPanel(new GridLayout(3,2));
@@ -59,8 +70,9 @@ public class SimpleCMClient extends JFrame {
 		setVisible(true);
 		setTitle("로그인 창");
 		
+	
 		m_clientStub = new CMClientStub();
-		m_eventHandler = new CMClientEventHandler(m_clientStub);
+		m_eventHandler = new CMClientEventHandler(m_clientStub,this);
 	}
 	
 	public static void main(String[] args) {
@@ -87,25 +99,13 @@ public class SimpleCMClient extends JFrame {
 		if(RequestResult) {
 			JOptionPane.showMessageDialog(null,"로그인 성공!") ;
 			setVisible(false);
-			new MainMenu(); // 메인메뉴 화면으로 전환
-			// session info 가져오기
-			CMSessionEvent se = null; 
-			se = m_clientStub.syncRequestSessionInfo();
-			if(se==null) {
-				SessionPanel.append("error,try again \n");
-			}
-			Iterator<CMSessionInfo> iter = se.getSessionInfoList().iterator();
-			while(iter.hasNext()) {
-				CMSessionInfo tInfo = iter.next();
-				SessionPanel.append(tInfo.getSessionName()+'\n');
-			}
-			///////////////////////////////
-			CMMqttManager mqttManager = 
-					(CMMqttManager) m_clientStub.findServiceManager(CMInfo.CM_MQTT_MANAGER);
+			
+			//connect to CM_MQTT_SERVER
+			mqttManager = (CMMqttManager) m_clientStub.findServiceManager(CMInfo.CM_MQTT_MANAGER);
 			mqttManager.connect();
-			mqttManager.subscribe("g1", (byte)0);
-			mqttManager.publish("g1","hi");
-			///////////////////////////////////////////
+			new MainMenu(); // 메인메뉴 화면으로 전환
+		
+
 		}
 		else
 			JOptionPane.showMessageDialog(null,"로그인 실패!") ;	
@@ -113,94 +113,123 @@ public class SimpleCMClient extends JFrame {
 		});
 		
 	}
+	
+	JLabel label = new JLabel("클라이언트 테스트");
+	JTextPane LogArea = new JTextPane();
+	JTextField TextField = new JTextField(20);
+	JButton button = new JButton("확인");
+	JPanel P1 = new JPanel();
 	// MainMenu
 	class MainMenu extends JFrame{
-	
-		JLabel Session = new JLabel("Session");
+		
 		MainMenu() {
 			setLocationRelativeTo(null); 
 			setTitle("배달공유시스템");
-			setSize(300,300);
+			setSize(500,400);
 			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			
-			JTextField join_session = new JTextField() ;
-			JButton join_button = new JButton("join");
-			JLabel label1 = new JLabel("Session List");
-			JLabel label2 = new JLabel("INPUT");
+			setVisible(true);
 			Container c = getContentPane();
-			c.setLayout(new GridLayout(3,2));
-			c.add(label1);
-			c.add(label2);
-			c.add(SessionPanel);
-			c.add(join_session);
-			c.add(join_button);
-			join_button.addActionListener(new ActionListener(){
+			c.setLayout(new BorderLayout());
+			c.add(label,BorderLayout.NORTH);
+			LogArea.setEditable(false);
+			c.add(LogArea,BorderLayout.CENTER);
+			P1.add(TextField);
+			P1.add(button);
+			c.add(P1,BorderLayout.SOUTH);
+		// --------------------------- TEST AREA ---------------------------------
+			// (예시) 
+			// 명령어 
+			// printMessage(확인) ;
+		// -----------------------------------------------------
+			printMessage("1. Print SessionNames : printSessions");
+			printMessage("2. JoinSession : /s 세션이름");
+			printMessage("3. Get myInfo(group,session) : MyInfo");
+			
+			
+			
+			
+			// --------------------------------------------------------------------------
+			
+			
+			// Button Listener
+			button.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent e) {
+					String Menunum = null ;
+					String MenuString = null ;
+					
 					boolean bRequestResult = false;
-					String session = join_session.getText();
-					bRequestResult = m_clientStub.joinSession(session);
-					if(bRequestResult)
-						JOptionPane.showMessageDialog(null,"Successfully joined "+session);
-					else
-						JOptionPane.showMessageDialog(null,"Session join failed");
+					String StringInput = TextField.getText();
+					StringTokenizer Strings = new StringTokenizer(StringInput);
+					// ex) /s session1
+					if(Strings.countTokens()==2) {
+						Menunum =  Strings.nextToken();
+						MenuString = Strings.nextToken();
+					}
+					// ex) exit
+					else MenuString = StringInput ;	
+					
+					if(Menunum!= null && Menunum.equals("/s")) 
+					{
+						bRequestResult = m_clientStub.joinSession(MenuString);
+						if(bRequestResult)
+						{
+							printMessage("Successfully joined "+MenuString);
+							mqttManager.subscribe(MenuString,(byte)0);
+						}
+						else
+							printMessage("Session join failed");
+					}
+					else if (MenuString.equals("printSessions")||MenuString.equals("1"))
+						PrintSessionNames();
+					else if (MenuString.equals("MyInfo")|| MenuString.equals("3"))
+					{
+						CMUser user = m_clientStub.getMyself();
+						printMessage("My Session : " + user.getCurrentSession());
+						printMessage("My Group : " + user.getCurrentGroup()) ;
+					}	
+					else 
+						printMessage("--------WRONG COMMAND-----------");
+					
+					//flush
+					TextField.setText("");
 				}
 			});
 			
-			SessionPanel.append("Session Names : \n");
-			c.add(scrollPane);
-			setVisible(true);
 		}
 		
 		
 	}
-
-//	// login ( USER GUIDE Version )
-//	private void login_UG() {
-//		String UserName = null ;
-//		String Password = null ;
-//		boolean bRequestResult = false ; // request 성공 여부
-//		Console console = System.console();
-//		
-//		System.out.print("user name : ");
-//		BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
-//			try {
-//				UserName = br.readLine() ;
-//				if(console == null) {
-//					System.out.print("password: ");
-//					Password = br.readLine();
-//				}
-//				else
-//					Password = new String(console.readPassword("Password : ")) ;
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//		bRequestResult = m_clientStub.loginCM(UserName, Password) ;
-//		if(bRequestResult) 
-//			System.out.println("login success");
-//		else
-//			System.err.println("failed");
-//	}
-//	
 	
-	// Requesting session login ( USER GUIDE Version )
-//	private void Session_Request(CMClientStub stub) {
-//		// assume that session info is given to user
-//		String SessionName = null;
-//		boolean bRequestResult = false;
-//		System.out.println("session name: ");
-//		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-//		try {
-//			SessionName = br.readLine();
-//		} catch(IOException e) {
-//			e.printStackTrace();
-//		}
-//		bRequestResult = stub.joinSession(SessionName);
-//		if(bRequestResult) 
-//			System.out.format("successfully joined %s",SessionName);
-//		else
-//			System.out.println("failed the session-join request!");
-//	}
-//	
-//	
-//	
+	public void PrintSessionNames() {
+		// session info 가져오기
+			CMSessionEvent se = null; 
+			se = m_clientStub.syncRequestSessionInfo();
+			if(se==null) {
+				printMessage("error,try again \n");
+			}
+			else {
+				printMessage("Session Names:");
+				Iterator<CMSessionInfo> iter = se.getSessionInfoList().iterator();
+				while(iter.hasNext()) {
+					CMSessionInfo tInfo = iter.next();
+					printMessage(tInfo.getSessionName());
+				}		
+			}
+	}
+	
+	public void printMessage(String strText)
+	{
+		StyledDocument doc = LogArea.getStyledDocument();
+		try {
+			doc.insertString(doc.getLength(), strText+'\n', null);
+			LogArea.setCaretPosition(LogArea.getDocument().getLength());
+
+		} catch (BadLocationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return;
+	}
+
 }

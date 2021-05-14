@@ -1,16 +1,20 @@
 import kr.ac.konkuk.ccslab.cm.event.CMEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMSessionEvent;
 import kr.ac.konkuk.ccslab.cm.event.handler.CMAppEventHandler;
+import kr.ac.konkuk.ccslab.cm.event.mqttevent.CMMqttEvent;
+import kr.ac.konkuk.ccslab.cm.event.mqttevent.CMMqttEventPUBLISH;
+import kr.ac.konkuk.ccslab.cm.event.mqttevent.CMMqttEventPUBREC;
 import kr.ac.konkuk.ccslab.cm.info.CMConfigurationInfo;
+import kr.ac.konkuk.ccslab.cm.info.CMDBInfo;
 import kr.ac.konkuk.ccslab.cm.info.CMInfo;
 import kr.ac.konkuk.ccslab.cm.manager.CMDBManager;
-import kr.ac.konkuk.ccslab.cm.manager.CMMqttManager;
 import kr.ac.konkuk.ccslab.cm.stub.CMServerStub;
 
 public class ServerDemoEventHandler implements CMAppEventHandler {
 	private ServerDemo m_server;
 	private CMServerStub m_serverStub;
-	
+	private CMInfo m_cmInfo;
+	private CMDBManager m_cmdb ;
 	public ServerDemoEventHandler(CMServerStub serverStub,ServerDemo server) {
 		m_serverStub = serverStub ;
 		m_server = server ;
@@ -25,6 +29,10 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 		case CMInfo.CM_SESSION_EVENT :
 			LOGIN(cme);
 			break;
+		case CMInfo.CM_MQTT_EVENT:
+			processMqttEvent(cme);
+			break;
+			
 		default :
 			return ;
 		}
@@ -66,7 +74,7 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 			printMessage("["+ID+"] requests session information.");
 			break;
 		case CMSessionEvent.CHANGE_SESSION:
-			printMessage("["+ID+"] changes to session("+se.getSessionName()+").");	
+			printMessage("["+ID+"] changes to session("+se.getSessionName()+").");
 			break;
 		case CMSessionEvent.JOIN_SESSION:
 			printMessage("["+ID+"] requests to join session("+se.getSessionName()+").");
@@ -100,6 +108,22 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 			return;
 		}
 	}
+	
+	private void processMqttEvent(CMEvent cme) {
+		switch(cme.getID()) {
+		case CMMqttEvent.PUBREC:
+			CMMqttEventPUBREC pubrecEvent = (CMMqttEventPUBREC)cme;
+			printMessage(pubrecEvent.toString());
+			break;
+		case CMMqttEvent.PUBLISH :
+			CMMqttEventPUBLISH string = (CMMqttEventPUBLISH) cme ;
+			printMessage(string.toString());
+			printMessage(string.getSender() +":"+ string.getAppMessage());
+		}
+		
+	}
+	
+
 	
 	private void printMessage(String strText) {
 		m_server.printMessage(strText);
