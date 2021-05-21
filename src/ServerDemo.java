@@ -311,6 +311,7 @@ public void serviceList() {
 			case "C2" :
 			{
 				// C2 ## group_id ## 메뉴
+				String sessionName = e.getHandlerSession();
 				String group_id = token.nextToken();
 				String menu = token.nextToken();
 				int least_price = 0 ;
@@ -361,6 +362,10 @@ public void serviceList() {
 					storeCat = Nresult.getString("store_category");
 					collected_amount =  Nresult.getInt("collected_amount");
 					group_host = Nresult.getString("group_host");
+					
+					if ( collected_amount >= least_price ) MakeOrder() ;
+					
+					
 				} catch (SQLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -368,7 +373,8 @@ public void serviceList() {
 				
 				String pubMsg = "S1"+"##"+group_id+"##"+group_host + "##" + storeName + "##" + storeCat + "##" + Integer.toString(collected_amount) + "##" + Integer.toString(least_price) ;
 				printMessage("pubMsg :"+pubMsg);
-				boolean bRequest = MakePublish(group_id,pubMsg);
+				// publish to session
+				boolean bRequest = MakePublish(sessionName,pubMsg);
 				if (bRequest) 
 					printMessage("C2 : PUB SUCCESS");
 				
@@ -379,6 +385,9 @@ public void serviceList() {
 		return true ;
 	}
 
+	public boolean MakeOrder(String )
+	
+	
 
 	public boolean MakePublish(String strTopic,String strMsg) {
 		// 서버 -> 클라이언트 메시지 전달( Session or Group ) 
