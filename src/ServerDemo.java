@@ -363,7 +363,7 @@ public void serviceList() {
 					collected_amount =  Nresult.getInt("collected_amount");
 					group_host = Nresult.getString("group_host");
 					
-					if ( collected_amount >= least_price ) MakeOrder() ;
+//					if ( collected_amount >= least_price ) MakeOrder() ;
 					
 					
 				} catch (SQLException e1) {
@@ -385,7 +385,7 @@ public void serviceList() {
 		return true ;
 	}
 
-	public boolean MakeOrder(String )
+//	public boolean MakeOrder(String )
 	
 	
 
