@@ -21,6 +21,8 @@ import javax.swing.text.StyledDocument;
 
 import kr.ac.konkuk.ccslab.cm.entity.CMSessionInfo;
 import kr.ac.konkuk.ccslab.cm.entity.CMUser;
+import kr.ac.konkuk.ccslab.cm.event.CMDummyEvent;
+import kr.ac.konkuk.ccslab.cm.event.CMEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMSessionEvent;
 import kr.ac.konkuk.ccslab.cm.info.CMInfo;
 import kr.ac.konkuk.ccslab.cm.manager.CMMqttManager;
@@ -187,6 +189,15 @@ public class SimpleCMClient extends JFrame {
 						printMessage("My Session : " + user.getCurrentSession());
 						printMessage("My Group : " + user.getCurrentGroup()) ;
 					}	
+					else if (MenuString.equals("4")) {
+						String msg = "C2##g1##juice"; 
+						mqttManager.subscribe("g1",(byte)0) ;
+						CMDummyEvent Nmsg = new CMDummyEvent(); 
+						Nmsg.setDummyInfo(msg);
+						m_clientStub.send(Nmsg,"SERVER");
+						
+						
+					}
 					else 
 						printMessage("--------WRONG COMMAND-----------");
 					

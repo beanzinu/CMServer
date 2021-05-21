@@ -1,3 +1,4 @@
+import kr.ac.konkuk.ccslab.cm.event.CMDummyEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMSessionEvent;
 import kr.ac.konkuk.ccslab.cm.event.handler.CMAppEventHandler;
@@ -5,7 +6,6 @@ import kr.ac.konkuk.ccslab.cm.event.mqttevent.CMMqttEvent;
 import kr.ac.konkuk.ccslab.cm.event.mqttevent.CMMqttEventPUBLISH;
 import kr.ac.konkuk.ccslab.cm.event.mqttevent.CMMqttEventPUBREC;
 import kr.ac.konkuk.ccslab.cm.info.CMConfigurationInfo;
-import kr.ac.konkuk.ccslab.cm.info.CMDBInfo;
 import kr.ac.konkuk.ccslab.cm.info.CMInfo;
 import kr.ac.konkuk.ccslab.cm.manager.CMDBManager;
 import kr.ac.konkuk.ccslab.cm.stub.CMServerStub;
@@ -32,7 +32,8 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 		case CMInfo.CM_MQTT_EVENT:
 			processMqttEvent(cme);
 			break;
-			
+		case CMInfo.CM_DUMMY_EVENT: 
+			m_server.MakePublish(cme);
 		default :
 			return ;
 		}
@@ -76,8 +77,9 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 		case CMSessionEvent.CHANGE_SESSION:
 			printMessage("["+ID+"] changes to session("+se.getSessionName()+").");
 			break;
-		case CMSessionEvent.JOIN_SESSION:
+		case CMSessionEvent.JOIN_SESSION: // 
 			printMessage("["+ID+"] requests to join session("+se.getSessionName()+").");
+			// client group_table select 
 			break;
 		case CMSessionEvent.LEAVE_SESSION:
 			printMessage("["+ID+"] leaves a session("+se.getSessionName()+").");

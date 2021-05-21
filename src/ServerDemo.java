@@ -3,19 +3,24 @@ import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.StringTokenizer;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.StyledDocument;
+
 /*
 import kr.ac.konkuk.ccslab.cm.entity.CMMqttSession;
 import kr.ac.konkuk.ccslab.cm.info.CMConfigurationInfo;
@@ -29,43 +34,20 @@ import kr.ac.konkuk.ccslab.cm.manager.CMMqttManager;
 import kr.ac.konkuk.ccslab.cm.stub.CMServerStub;
 */
 import kr.ac.konkuk.ccslab.cm.entity.CMGroup;
-import kr.ac.konkuk.ccslab.cm.entity.CMList;
-import kr.ac.konkuk.ccslab.cm.entity.CMMember;
-import kr.ac.konkuk.ccslab.cm.entity.CMMessage;
 import kr.ac.konkuk.ccslab.cm.entity.CMMqttSession;
-import kr.ac.konkuk.ccslab.cm.entity.CMRecvFileInfo;
-import kr.ac.konkuk.ccslab.cm.entity.CMSendFileInfo;
-import kr.ac.konkuk.ccslab.cm.entity.CMServer;
 import kr.ac.konkuk.ccslab.cm.entity.CMSession;
-import kr.ac.konkuk.ccslab.cm.entity.CMUser;
-import kr.ac.konkuk.ccslab.cm.event.CMBlockingEventQueue;
 import kr.ac.konkuk.ccslab.cm.event.CMDummyEvent;
-import kr.ac.konkuk.ccslab.cm.info.CMCommInfo;
+import kr.ac.konkuk.ccslab.cm.event.CMEvent;
+import kr.ac.konkuk.ccslab.cm.event.CMSessionEvent;
 import kr.ac.konkuk.ccslab.cm.info.CMConfigurationInfo;
 import kr.ac.konkuk.ccslab.cm.info.CMDBInfo;
-import kr.ac.konkuk.ccslab.cm.info.CMFileTransferInfo;
 import kr.ac.konkuk.ccslab.cm.info.CMInfo;
 import kr.ac.konkuk.ccslab.cm.info.CMInteractionInfo;
 import kr.ac.konkuk.ccslab.cm.info.CMMqttInfo;
 import kr.ac.konkuk.ccslab.cm.manager.CMCommManager;
-import kr.ac.konkuk.ccslab.cm.manager.CMConfigurator;
 import kr.ac.konkuk.ccslab.cm.manager.CMDBManager;
 import kr.ac.konkuk.ccslab.cm.manager.CMMqttManager;
-import kr.ac.konkuk.ccslab.cm.sns.CMSNSUserAccessSimulator;
 import kr.ac.konkuk.ccslab.cm.stub.CMServerStub;
-
-import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
-import java.nio.channels.SelectableChannel;
-import java.nio.channels.SocketChannel;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
-
-import javax.swing.JOptionPane;
 
 public class ServerDemo extends JFrame {
 
@@ -208,7 +190,12 @@ public class ServerDemo extends JFrame {
 		serviceList(); 
 		// ---------------------TEST AREA ----------------------------
 		
+		m_cmdb.init(m_cmInfo);
+		m_cmdb.connectDB(m_cmInfo);
 		
+//		m_cmdb.init(m_cmInfo);
+//		m_cmdb.connectDB(m_cmInfo) ;
+//		m_cmdb.queryInsertUser("j","1234",m_cmInfo) ;
 		
 		
 		// waiting for input
@@ -249,6 +236,150 @@ public void serviceList() {
 		
 	}
 	
+	public boolean MakePublish(CMEvent cme) {
+		printMessage("recv success") ;
+		CMDummyEvent e = (CMDummyEvent) cme ;
+	
+		printMessage(cme.toString());
+		String UserName = cme.getSender();
+	
+		String string = e.getDummyInfo();
+		printMessage(string);
+		StringTokenizer token = new StringTokenizer(string,"##");
+		switch(token.nextToken()) {
+			case "C1" :
+			{
+				String strTopic ,storeName, menu;
+				String storeCat = null;
+				int least_price =0;
+				int	collected_amount = 0 ;
+				
+				//client information
+				strTopic = token.nextToken();
+				storeName = token.nextToken();
+				menu = token.nextToken();
+				// DB
+				ResultSet Nresult = m_cmdb.sendSelectQuery("select * from store_table where store_name =  '"+storeName+"';", m_cmInfo) ;
+				try {
+					Nresult.next() ;
+					least_price = Nresult.getInt(2);
+					storeCat = Nresult.getString(3);
+					
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				ResultSet Mresult = m_cmdb.sendSelectQuery("select * from store_menu_table where store_name =  '"+storeName+"' and menu = '"+menu+"';", m_cmInfo) ;
+				try {
+					Mresult.next() ;
+					collected_amount = Mresult.getInt(3);
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				
+				//
+				if (least_price == 0 || storeCat == null || collected_amount == 0 ) 
+				{
+					printMessage("MakeGroup failed");
+					return false ;
+				}
+				
+				// update DB
+				String group_id = null ;
+//				String group_id = MakeGroup(strTopic,UserName,storeName,storeCat,Integer.toString(collected_amount),Integer.toString(least_price));
+//				if (group_id != null)
+//					printMessage ( "DB UPDATE SUCCESS");
+				
+				// Publish 
+				// S1 ## group_id ## group_host ## store_name ## store_category ## collected amount ## least price
+				
+				
+				String strQuery = "insert into group_menu_table (group_id,menu,member,price) values ('"+group_id+"'" +
+								"'"+menu+"','"+UserName+"','"+collected_amount+"');";				
+				int Result1 = m_cmdb.sendUpdateQuery(strQuery, m_cmInfo);
+				if (Result1 > 0 ) printMessage("menuDB UPDATE SUCCESS");
+				
+				String pubMsg = "S1"+"##"+group_id+"##"+UserName + "##" + storeName + "##" + storeCat + "##" + Integer.toString(collected_amount) + "##" + Integer.toString(least_price) ;
+				boolean Result = MakePublish(strTopic,pubMsg);
+				if (Result) 
+					printMessage("PUB SUCCESS");
+				
+			}
+			case "C2" :
+			{
+				// C2 ## group_id ## 메뉴
+				String group_id = token.nextToken();
+				String menu = token.nextToken();
+				int least_price = 0 ;
+				String storeCat = null ;
+				int amount = 0 ;
+				int collected_amount = 0 ;
+				String storeName = null ;
+				String group_host = null ;
+				
+				// 가게 이름 구하기
+				ResultSet result1 = m_cmdb.sendSelectQuery("select store_name from group_table where group_id =  '"+group_id+"';" ,m_cmInfo) ;
+				try {
+					result1.next() ;
+					storeName = result1.getString(1);
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				// 메뉴의 금액 구하기
+				ResultSet result2 = m_cmdb.sendSelectQuery("select * from store_menu_table where store_name =  '"+storeName+"' and menu = '"+menu+"';", m_cmInfo) ;
+				try {
+					result2.next() ;
+					amount = result2.getInt(3);
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				// store_menu_table update
+				String strQuery = "insert into group_menu_table (group_id,menu,member,price) values ('"+group_id+"'," +
+						"'"+menu+"','"+UserName+"','"+amount+"');";		
+				printMessage(" QUERY : "+strQuery);
+				int Result1 = m_cmdb.sendUpdateQuery(strQuery, m_cmInfo);
+				if (Result1 > 0 ) printMessage("C2 : store_menu_table update success");
+				
+				
+				// store_table collected_amount update
+				String strQuery2 = "update group_table set collected_amount = collected_amount+"+Integer.toString(amount)+" where group_id = '"+group_id+"';";
+				int Result2 = m_cmdb.sendUpdateQuery(strQuery2, m_cmInfo);
+				if (Result2 > 0 ) printMessage("C2 : group_table update success");
+				
+				// store_table get information
+				ResultSet Nresult = m_cmdb.sendSelectQuery("select * from group_table where store_name =  '"+storeName+"';", m_cmInfo) ;
+				try {
+					Nresult.next() ;
+					least_price = Nresult.getInt("least_price");
+					storeCat = Nresult.getString("store_category");
+					collected_amount =  Nresult.getInt("collected_amount");
+					group_host = Nresult.getString("group_host");
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				String pubMsg = "S1"+"##"+group_id+"##"+group_host + "##" + storeName + "##" + storeCat + "##" + Integer.toString(collected_amount) + "##" + Integer.toString(least_price) ;
+				printMessage("pubMsg :"+pubMsg);
+				boolean bRequest = MakePublish(group_id,pubMsg);
+				if (bRequest) 
+					printMessage("C2 : PUB SUCCESS");
+				
+				
+			}
+		}
+		
+		return true ;
+	}
+
+
 	public boolean MakePublish(String strTopic,String strMsg) {
 		// 서버 -> 클라이언트 메시지 전달( Session or Group ) 
 		byte qos = (byte) 0 ;
@@ -369,15 +500,15 @@ public void serviceList() {
 		
 		//group 생성
 		session.createGroup(gname, gaddr, gport);
-		InsertGroup(gname, "heo", "noodle", "korean", "5000", "10000");
+//		InsertGroup( "heo", "noodle", "korean", "5000", "10000");
 		
 	}
 	
 	//if client made group, we can insert a row in group_table(DB)
-	public int InsertGroup(String group_id, String group_host, String restaurant, String res_category, String collected_amount, String least_price) {
+	public int InsertGroup(String group_id,String group_host, String restaurant, String res_category, String collected_amount, String least_price) {
 		CMInfo cmInfo=m_serverStub.getCMInfo();
-		String strQuery = "insert into group_table (group_id, group_host, restaurant, res_category, collected_amount, least_price) values ('" 
-				+group_id+"','"+group_host+"','"+restaurant+"','"+res_category+"','"+collected_amount+"','"+least_price+"');";
+		String strQuery = "insert into group_table (group_id, group_host, restaurant, res_category, collected_amount, least_price) values ('"+group_id+"'" +
+				"'"+group_host+"','"+restaurant+"','"+res_category+"','"+collected_amount+"','"+least_price+"');";
 		CMDBManager.init(cmInfo);
 		boolean a= CMDBManager.connectDB(cmInfo);
 		System.out.println("connect sucess: "+a);
