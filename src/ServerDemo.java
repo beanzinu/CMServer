@@ -191,8 +191,16 @@ public class ServerDemo extends JFrame {
 					printGroupDB(queryGetGroup(0, -1, m_cmInfo));
 				}
 				
-				else if(InputString.equals("insertPublish") || InputString.equals("9")) {
-					makeGroup();
+				else if(InputString.equals("makeGroup") || InputString.equals("9")) {
+					int a=makeGroup("Hwa-yang", "heo", "jeayook", "korean", "6000", "12000");//targetString = request client session name
+					if(a != -1) printMessage("success makeGroup\n");
+					else printMessage("makeGroup failed\n");
+				}
+				
+				else if(InputString.equals("removeGroup") || InputString.equals("10")) {
+					int a=removeGroup("Hwa-yang", 1);
+					if(a != -1) printMessage("success removeGroup\n");
+					else printMessage("removeGroup failed\n");
 				}
 				
 				else printMessage("---------WRONG COMMAND -------------");
@@ -243,7 +251,9 @@ public void serviceList() {
 				printMessage("6. ShowGroup : show group information");
 				printMessage("7. getUser : select user DB");
 				printMessage("8. getGroup : select group DB");
-				printMessage("9. insertPublish : insert publish DB");
+				printMessage("9. makeGroup : make group in session & DB");
+				printMessage("10. removeGroup : remove group in session & DB");
+				
 				printMessage("------------------------------");
 			
 		
@@ -337,47 +347,74 @@ public void serviceList() {
 		return;
 	}
 	
-	public void makeGroup() { // make group 
+	public int makeGroup(String s_name, String group_host, String restaurant, String res_category, String collected_amount, String least_price) { // make group 
 		//String sname= new String("session1"); //client msg 로 받아야함(요청한 client가 현재 속한 session)
 		//String saddr= new String("192.168.189.1");//client msg
 		//int sport= 7777;//client msg
 		//CMSession session =new CMSession("session1", "192.168.189.1", 7770);//client가 속한 session 객체
+		CMInfo cmInfo=m_serverStub.getCMInfo();
 		CMInteractionInfo interInfo = m_serverStub.getCMInfo().getInteractionInfo();
 		Iterator<CMSession> iter = interInfo.getSessionList().iterator();
-		CMSession session = iter.next();
 		
+		CMSession session=iter.next(); int s_num;
+		if(s_name.equals(new String("Hwa-yang"))) s_num=0;
+		else if(s_name.equals(new String("Ja-yang"))) s_num=1;
+		else if(s_name.equals(new String("Un-yang"))) s_num=2;
+		else {
+			printMessage("session name wrong\n");
+			return -1;
+		}
 		
-		int groupNum=session.getGroupList().size();//현재 group수
-	
+		for(int i=0;i<s_num;i++) session=iter.next();
 		
-		//새로운 group의 이름, 주소, port 번호  생성 (현재 group수로 만듦)
-		StringBuffer gnameformat= new StringBuffer("g1");
-		gnameformat.replace(1, 2, Integer.toString(groupNum+1));
-		String gname= new String(gnameformat.toString());
-		System.out.println(gname);
+		//새로운 group의 이름
+		String strQuery = "select MAX(group_id) as max from group_table;"; //현재 group_id중 최댓값
+		CMDBManager.init(cmInfo);
+		CMDBManager.connectDB(cmInfo);
+		ResultSet rs = CMDBManager.sendSelectQuery(strQuery, cmInfo);
+		int groupNum = 1;
+		try {
+			groupNum = rs.getInt(1)+1;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
-		StringBuffer gaddrformat= new StringBuffer("224.1.1.2");
+		//새로운 group이름
+		String gname = new String(Integer.toString(groupNum));
+		//새로운 group의 주소
+		StringBuffer gaddrformat= new StringBuffer("224.1.1."+Integer.toString(s_num+2));
 		gaddrformat.replace(6, 7, Integer.toString(groupNum+1));
 		String gaddr= new String(gaddrformat.toString());
 		System.out.println(gaddr);
 		
-		StringBuffer gportformat= new StringBuffer("7001");
+		//새로운 group의 port
+		StringBuffer gportformat= new StringBuffer("700"+Integer.toString(s_num+2));
 		gportformat.replace(2, 3, Integer.toString(groupNum));
 		String s_gport= new String(gportformat.toString());
 		int gport= Integer.parseInt(s_gport);
 		System.out.println(gport);
 		
 		//group 생성
-		session.createGroup(gname, gaddr, gport);
-		InsertGroup(gname, "heo", "noodle", "korean", "5000", "10000");
+		if(session.createGroup(gname, gaddr, gport) == null){
+			return -1;
+		}
 		
+		//group DB에도 추가
+		int insert_check=InsertGroup(groupNum, group_host , restaurant, res_category, collected_amount, least_price);
+		if(insert_check == -1) {
+			printMessage("send insert query fail\n");
+			return -1;
+		}
+		else return groupNum;
 	}
 	
 	//if client made group, we can insert a row in group_table(DB)
-	public int InsertGroup(String group_id, String group_host, String restaurant, String res_category, String collected_amount, String least_price) {
+	public int InsertGroup(int group_id, String group_host, String restaurant, String res_category, String collected_amount, String least_price) {
 		CMInfo cmInfo=m_serverStub.getCMInfo();
-		String strQuery = "insert into group_table (group_id, group_host, restaurant, res_category, collected_amount, least_price) values ('" 
-				+group_id+"','"+group_host+"','"+restaurant+"','"+res_category+"','"+collected_amount+"','"+least_price+"');";
+		String strQuery = "insert into group_table (group_id, group_host, store_name, store_category, collected_amount, least_price) values ('" 
+				+Integer.toString(group_id)+"','"+group_host+"','"+restaurant+"','"+res_category+"','"+collected_amount+"','"+least_price+"');";
+		printMessage(strQuery);
 		CMDBManager.init(cmInfo);
 		boolean a= CMDBManager.connectDB(cmInfo);
 		System.out.println("connect sucess: "+a);
@@ -395,6 +432,58 @@ public void serviceList() {
 		return ret;
 		
 	}
+	
+	public int removeGroup(String s_name, int group_id) {
+		CMInteractionInfo interInfo = m_serverStub.getCMInfo().getInteractionInfo();
+		Iterator<CMSession> iter = interInfo.getSessionList().iterator();
+		
+		CMSession session=iter.next(); int s_num;
+		if(s_name.equals(new String("Hwa-yang"))) s_num=0;
+		else if(s_name.equals(new String("Ja-yang"))) s_num=1;
+		else if(s_name.equals(new String("Un-yang"))) s_num=2;
+		else {
+			printMessage("session name wrong\n");
+			return -1;
+		}
+		
+		for(int i=0;i<s_num;i++) session=iter.next();
+		String gname = Integer.toString(group_id);
+		session.removeGroup(gname);
+		int delete_check = deleteGroup(gname);
+		if(delete_check == -1) {
+			printMessage("send insert query fail\n");
+			return -1;
+		}
+		
+		return 0;
+	}
+	
+	public int deleteGroup(String gname) {
+		CMInfo cmInfo=m_serverStub.getCMInfo();
+		CMDBManager.init(cmInfo);
+		boolean a= CMDBManager.connectDB(cmInfo);
+		System.out.println("connect sucess: "+a);
+		String QueryTogroup = "delete from group_table where group_id="+gname+";";
+		String QueryTomenu = "delete from group_menu_table where group_id="+gname+";";
+		
+		int ret1 = CMDBManager.sendUpdateQuery(QueryTogroup, cmInfo);
+		int ret2 = CMDBManager.sendUpdateQuery(QueryTomenu, cmInfo);
+		
+		
+		
+		if(ret1 == -1 || ret2 == -1)
+		{
+			System.out.println("CMDBManager.queryDeleteUser(), delete error!");
+			return -1;
+		}
+
+		if(CMInfo._CM_DEBUG) {
+			System.out.println("CMDBManager.queryDeleteUser(), return value("+ret1+").");
+			System.out.println("CMDBManager.queryDeleteUser(), return value("+ret2+").");
+		}
+		return 0;
+	}
+	
 	public static ResultSet queryGetUsers(int index, int num, CMInfo cmInfo)
 	{
 		String strQuery = null;
@@ -448,7 +537,7 @@ public void serviceList() {
 	public void printGroupDB(ResultSet rs) { //print about group_table in mysql
 		try {
 			while(rs.next()) {
-				printMessage(rs.getString(1) + "\t" + rs.getString(2)+ "\t" + rs.getString(3) + "\t" + rs.getString(4) + "\t" + rs.getString(5)+ "\t" + rs.getString(6));
+				printMessage(rs.getInt(1) + "\t" + rs.getString(2)+ "\t" + rs.getString(3) + "\t" + rs.getString(4) + "\t" + rs.getString(5)+ "\t" + rs.getString(6));
 			}
 			printMessage("-----------------------------------------------------\n");
 		} catch (SQLException e) {
@@ -495,19 +584,8 @@ public void serviceList() {
 		return;
 	}
 	
-	///////////////not finish!!!!!!!!!!!!!////////////////////////
-	public void removeGroup(String targetGroup) {
-		CMInteractionInfo interInfo = m_serverStub.getCMInfo().getInteractionInfo();
-		Iterator<CMSession> iter = interInfo.getSessionList().iterator();
-		CMSession session = iter.next();
-		
-		
-		
-		session.removeGroup(targetGroup);
-		
-		
-	}
-	///////////////////////////////////////////////
+	
+
 	//-------------------------------------------------------------------------------------
 	
 
