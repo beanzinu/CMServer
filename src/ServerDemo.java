@@ -264,6 +264,7 @@ public void serviceList() {
 				
 				//client information
 				strTopic = token.nextToken();
+				storeCat = token.nextToken();
 				storeName = token.nextToken();
 				menu = token.nextToken();
 				// DB
@@ -271,7 +272,7 @@ public void serviceList() {
 				try {
 					Nresult.next() ;
 					least_price = Nresult.getInt(2);
-					storeCat = Nresult.getString(3);
+//					storeCat = Nresult.getString(3);
 					
 				} catch (SQLException e1) {
 					// TODO Auto-generated catch block
@@ -300,7 +301,14 @@ public void serviceList() {
 					int Result1 = m_cmdb.sendUpdateQuery(strQuery, m_cmInfo);
 					if (Result1 > 0 ) printMessage("menuDB UPDATE SUCCESS");
 		
+					// send GROUP INFO 
+					CMDummyEvent group_msg = new CMDummyEvent();
+					String str = "GROUP##";
+					group_msg.setDummyInfo(str+group_id);
+					m_serverStub.send(group_msg,UserName);
+					
 					String pubMsg = "S1"+"##"+Integer.toString(group_id)+"##"+UserName + "##" + storeName + "##" + storeCat + "##" + Integer.toString(collected_amount) + "##" + Integer.toString(least_price) ;
+					printMessage("pub Msg : "+pubMsg);
 					boolean Result = MakePublish(strTopic,pubMsg);
 					if (Result) 
 						printMessage("PUB SUCCESS");
@@ -310,6 +318,7 @@ public void serviceList() {
 					printMessage("MakeGroup failed");
 					
 				}
+				break;
 			}
 			case "C2" :
 			{
@@ -382,6 +391,9 @@ public void serviceList() {
 					e1.printStackTrace();
 				}
 				
+			
+				
+				
 				String pubMsg = "S1"+"##"+group_id+"##"+group_host + "##" + storeName + "##" + storeCat + "##" + Integer.toString(collected_amount) + "##" + Integer.toString(least_price) ;
 				printMessage("pubMsg :"+pubMsg);
 				// publish to session
@@ -391,7 +403,7 @@ public void serviceList() {
 				boolean bRequest1 = MakePublish(group_id,pubMsg);
 				if (bRequest1)
 					printMessage("C2(group) : PUB SUCCESS");
-				
+				break;
 			}
 		}
 		

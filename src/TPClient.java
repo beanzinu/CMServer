@@ -544,7 +544,6 @@ class SigninWindow extends JFrame{
 	
 	SigninWindow(CMClientStub m_windowstub){
 		
-		
 		m_clientStub = m_windowstub;
 		m_eventHandler = new TPClientEventHandler(m_clientStub);
 		MyActionListener cmActionListener = new MyActionListener();
@@ -624,6 +623,7 @@ class SigninWindow extends JFrame{
 
 		if(pwd.equals(checkpwd)) {
 			JOptionPane.showMessageDialog(null,"success");
+			m_clientStub.startCM();
 			m_clientStub.registerUser(id,pwd); // client stub send register info to server
 			dispose();
 		}
@@ -1263,6 +1263,11 @@ class joinGroupWindow extends JFrame{
 		
 		
 		String temp;
+		////////////////
+		
+		
+		
+		////////////////
 		joingroup.append(menuNameServer);
 		System.out.println("joingroup::"+joingroup);
 		
@@ -1374,9 +1379,12 @@ class ChattingWindow extends JFrame{
 		chatWindow = new JTextArea("");
 		chatWindow.setEditable(false); 
 		chatInput = new JTextArea("",4,25);
+		
 		chatInput.setEditable(true); 
 		
 		chatSendBtn = new JButton("enter");
+		chatSendBtn.addActionListener(cmActionListener);
+		
 		
 		panelChatRoom.add(new JScrollPane(chatWindow));
 		panelChatInput.add(new JScrollPane(chatInput));
@@ -1394,7 +1402,6 @@ class ChattingWindow extends JFrame{
 	}
 	
 	public void ChatInUser() {
-		
 		String chatMsg = chatInput.getText();
 		
 		m_clientStub.chat("/g", chatMsg);
@@ -1404,6 +1411,7 @@ class MyActionListener implements ActionListener {
 		
 		public void actionPerformed(ActionEvent e)
 		{
+//			ChatInUser();
 			JButton button = (JButton) e.getSource();
 			if(button.equals(chatSendBtn)) {
 			ChatInUser();

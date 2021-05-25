@@ -190,8 +190,8 @@ public class SimpleCMClient extends JFrame {
 						printMessage("My Group : " + user.getCurrentGroup()) ;
 					}	
 					else if (MenuString.equals("4")) {
-						String msg = "C2##1##juice"; 
-						mqttManager.subscribe("1",(byte)0) ;
+						String msg = "C1##Hwa-yang##Korean##Restio##juice"; 
+						mqttManager.subscribe("Hwa-yang",(byte)0) ;
 						CMDummyEvent Nmsg = new CMDummyEvent(); 
 						Nmsg.setHandlerSession("Hwa-yang");
 						Nmsg.setDummyInfo(msg);
