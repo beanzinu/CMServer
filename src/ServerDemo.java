@@ -69,11 +69,11 @@ public class ServerDemo extends JFrame {
 	JScrollPane scrollPane = new JScrollPane(LogArea);
 	JPanel P1 = new JPanel(new FlowLayout());
 	JTextField ServerInput = new JTextField(20);
-	JButton ServerInputButton = new JButton("È®ÀÎ");
+	JButton ServerInputButton = new JButton("í™•ì¸");
 	//------------------------------------------------------------
 	
 	
-	// »ı¼ºÀÚ
+	// ìƒì„±ì
 	public ServerDemo()
 	{
 		m_serverStub = new CMServerStub();
@@ -102,7 +102,7 @@ public class ServerDemo extends JFrame {
 			System.err.println("CM initialization error!");
 			return;
 		}
-		else StartService() ; //  ¼­¹ö ¿ÀÇÂ ¼º°ø ÈÄ ¼­ºñ½º ½ÃÀÛ
+		else StartService() ; //  ì„œë²„ ì˜¤í”ˆ ì„±ê³µ í›„ ì„œë¹„ìŠ¤ ì‹œì‘
 	}
 	public void StartService()  {
 		// CM Start
@@ -193,13 +193,13 @@ public class ServerDemo extends JFrame {
 				else printMessage("---------WRONG COMMAND -------------");
 					
 				
-				// Input ºñ¿ì±â
+				// Input ë¹„ìš°ê¸°
 				ServerInput.setText("");
 			}
 		});
 		
 		
-		// ¼­¹ö¿¡¼­ Á¦°øÇÏ´Â ¼­ºñ½º¿¡ ´ëÇØ¼­ ¼³¸í
+		// ì„œë²„ì—ì„œ ì œê³µí•˜ëŠ” ì„œë¹„ìŠ¤ì— ëŒ€í•´ì„œ ì„¤ëª…
 		serviceList(); 
 		// ---------------------TEST AREA ----------------------------
 		
@@ -233,7 +233,7 @@ public class ServerDemo extends JFrame {
 	}
 public void serviceList() {
 		
-		// ¼­¹ö¿¡¼­ Á¦°øÇÏ´Â ¼­ºñ½º¿¡ ´ëÇØ¼­ ¼³¸í
+		// ì„œë²„ì—ì„œ ì œê³µí•˜ëŠ” ì„œë¹„ìŠ¤ì— ëŒ€í•´ì„œ ì„¤ëª…
 				printMessage("------------------------------");
 				printMessage("1. exit : Terminate CM");
 				printMessage("2. DBconf : check my DB conf");
@@ -319,7 +319,7 @@ public void serviceList() {
 			}
 			case "C2" :
 			{
-				// C2 ## group_id ## ¸Ş´º
+				// C2 ## group_id ## ë©”ë‰´
 				String sessionName = e.getHandlerSession();
 				printMessage(sessionName);
 				String group_id = token.nextToken();
@@ -331,7 +331,7 @@ public void serviceList() {
 				String storeName = null ;
 				String group_host = null ;
 				
-				// °¡°Ô ÀÌ¸§ ±¸ÇÏ±â
+				// ê°€ê²Œ ì´ë¦„ êµ¬í•˜ê¸°
 				ResultSet result1 = m_cmdb.sendSelectQuery("select store_name from group_table where group_id =  '"+group_id+"';" ,m_cmInfo) ;
 				try {
 					result1.next() ;
@@ -341,7 +341,7 @@ public void serviceList() {
 					e1.printStackTrace();
 				}
 				
-				// ¸Ş´ºÀÇ ±İ¾× ±¸ÇÏ±â
+				// ë©”ë‰´ì˜ ê¸ˆì•¡ êµ¬í•˜ê¸°
 				ResultSet result2 = m_cmdb.sendSelectQuery("select * from store_menu_table where store_name =  '"+storeName+"' and menu = '"+menu+"';", m_cmInfo) ;
 				try {
 					result2.next() ;
@@ -409,7 +409,7 @@ public void serviceList() {
 	
 
 	public boolean MakePublish(String strTopic,String strMsg) {
-		// ¼­¹ö -> Å¬¶óÀÌ¾ğÆ® ¸Ş½ÃÁö Àü´Ş( Session or Group ) 
+		// ì„œë²„ -> í´ë¼ì´ì–¸íŠ¸ ë©”ì‹œì§€ ì „ë‹¬( Session or Group ) 
 		byte qos = (byte) 0 ;
 		boolean bDupFlag = false ;
 		boolean bRetainFlag = false ;
@@ -497,10 +497,10 @@ public void serviceList() {
 	}
 	
 	public int makeGroup(String s_name, String group_host, String restaurant, String res_category, String collected_amount, String least_price) { // make group 
-		//String sname= new String("session1"); //client msg ·Î ¹Ş¾Æ¾ßÇÔ(¿äÃ»ÇÑ client°¡ ÇöÀç ¼ÓÇÑ session)
+		//String sname= new String("session1"); //client msg ë¡œ ë°›ì•„ì•¼í•¨(ìš”ì²­í•œ clientê°€ í˜„ì¬ ì†í•œ session)
 		//String saddr= new String("192.168.189.1");//client msg
 		//int sport= 7777;//client msg
-		//CMSession session =new CMSession("session1", "192.168.189.1", 7770);//client°¡ ¼ÓÇÑ session °´Ã¼
+		//CMSession session =new CMSession("session1", "192.168.189.1", 7770);//clientê°€ ì†í•œ session ê°ì²´
 		CMInfo cmInfo=m_serverStub.getCMInfo();
 		CMInteractionInfo interInfo = m_serverStub.getCMInfo().getInteractionInfo();
 		Iterator<CMSession> iter = interInfo.getSessionList().iterator();
@@ -516,8 +516,8 @@ public void serviceList() {
 		
 		for(int i=0;i<s_num;i++) session=iter.next();
 		
-		//»õ·Î¿î groupÀÇ ÀÌ¸§
-		String strQuery = "select MAX(group_id) as max from group_table;"; //ÇöÀç group_idÁß ÃÖ´ñ°ª
+		//ìƒˆë¡œìš´ groupì˜ ì´ë¦„
+		String strQuery = "select MAX(group_id) as max from group_table;"; //í˜„ì¬ group_idì¤‘ ìµœëŒ“ê°’
 		CMDBManager.init(cmInfo);
 		CMDBManager.connectDB(cmInfo);
 		ResultSet rs = CMDBManager.sendSelectQuery(strQuery, cmInfo);
@@ -529,31 +529,31 @@ public void serviceList() {
 			e.printStackTrace();
 		}
 		
-		//»õ·Î¿î groupÀÌ¸§
+		//ìƒˆë¡œìš´ groupì´ë¦„
 		String gname = new String(Integer.toString(groupNum));
-		//»õ·Î¿î groupÀÇ ÁÖ¼Ò
+		//ìƒˆë¡œìš´ groupì˜ ì£¼ì†Œ
 		StringBuffer gaddrformat= new StringBuffer("224.1.1."+Integer.toString(s_num+2));
 		gaddrformat.replace(6, 7, Integer.toString(groupNum+1));
 		String gaddr= new String(gaddrformat.toString());
 		System.out.println(gaddr);
 		
-		//»õ·Î¿î groupÀÇ port
+		//ìƒˆë¡œìš´ groupì˜ port
 		StringBuffer gportformat= new StringBuffer("700"+Integer.toString(s_num+2));
 		gportformat.replace(2, 3, Integer.toString(groupNum));
 		String s_gport= new String(gportformat.toString());
 		int gport= Integer.parseInt(s_gport);
 		System.out.println(gport);
 		
-		//group »ı¼º
+		//group ìƒì„±
 	
 		if(session.createGroup(gname, gaddr, gport) == null){
 			return -1;
 		}
 		
-		//conf ¼öÁ¤
+		//conf ìˆ˜ì •
 		insertConf(groupNum+1,gname,gaddr,gport);
 		
-		//group DB¿¡µµ Ãß°¡
+		//group DBì—ë„ ì¶”ê°€
 		int insert_check=InsertGroup(groupNum, group_host , restaurant, res_category, collected_amount, least_price);
 		if(insert_check == -1) {
 			printMessage("send insert query fail\n");
@@ -638,35 +638,52 @@ public void serviceList() {
 	
 	public void removeConf(int group_id) {
 		File fd;
+		group_id = 2;
 		String findgname="GROUP_NAME"+Integer.toString(group_id+1)+"			"+Integer.toString(group_id);
-		printMessage(findgname);
+		String groupNum="GROUP_NUM"+"				";
 		String findgaddr; 
 		String findgport;
 		try {
-			fd = new File("C:\\Users\\User\\Desktop\\2021-1\\CMserver2\\CMServer\\cm-session1.conf");
-			FileWriter fw = new FileWriter(fd, true);//ÀÌ¾î¾²±â
+			fd = new File("C:\\Users\\jonghyun\\git\\CMServer\\cm-session1.conf");
+			
+			FileWriter fw = new FileWriter(fd, true);//ì´ì–´ì“°ê¸°
 			BufferedWriter bw = new BufferedWriter(fw);
 			FileReader fr = new FileReader(fd);
 			BufferedReader br = new BufferedReader(fr);
-			String line="";
-			while((line = br.readLine()) != null) {
-	            String trimmedLine = line.trim();
-	            if(trimmedLine.equals(findgname)) {
-	            	line.replaceAll(line, "");
-	                findgaddr = br.readLine().trim();
-	                printMessage(findgaddr);
-	                findgaddr.replaceAll(findgaddr, "");	                
-	                findgport = br.readLine().trim();
-	                printMessage(findgport);
-	                findgport.replaceAll(findgport, "");	               
-	                break;
-	            	}
-				}
+			
+			String line;
+			String dummy = "";
+			
+			line = br.readLine();
+			while(line != null) {
+	         if(line.contains(groupNum)) {
+	        	 int a=(int)line.charAt(line.length()-1);
+	        	a--;
+	        	char b = (char)a;
+	        	
+	        	 groupNum = groupNum + b;
+	        	 line = groupNum;
+	         }
+	         if(line.equals(findgname)) {
+	            	line = br.readLine();
+	            	line = br.readLine();
+	            	line = br.readLine();
+	            	line = br.readLine();
+	         }
+	         
+	         dummy += (line + "\r\n");
+	            line = br.readLine();
+			}
+			FileWriter fw2 = new FileWriter(fd);
+			fw2.write(dummy);
+
+			fw.write(dummy);
+			
 			br.close();
 			fr.close();
 			bw.close();
 			fw.close();
-			} catch (IOException e) {
+			}catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -769,7 +786,7 @@ public void serviceList() {
 	
 	
 	
-	//---------------------------------------¼­¹ö ·Î±×¿¡ ÇÁ¸°Æ® ----------------------------------
+	//---------------------------------------ì„œë²„ ë¡œê·¸ì— í”„ë¦°íŠ¸ ----------------------------------
 	public void printMessage(String strText)
 	{
 		StyledDocument doc = LogArea.getStyledDocument();
