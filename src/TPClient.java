@@ -84,7 +84,7 @@ public class TPClient extends JFrame {
 	private String strPassword = null;
 	
 	joinGroupWindow joinWindow;
-	
+	CreateGroupWindow createWindow;
 	
 	//++++++++++++++++++++++++++++++++++++++++++ constructor +++++++++++++++++++++++++++++++++++++++++//
 		
@@ -508,7 +508,7 @@ public class TPClient extends JFrame {
 			}else if(button.equals(joinGroupBtn)){
 				joinWindow = new joinGroupWindow(m_clientStub,m_eventHandler);
 			}else if(button.equals(createGroupBtn)) {
-				new CreateGroupWindow(m_clientStub,UserSessionInfo,m_eventHandler);
+				createWindow = new CreateGroupWindow(m_clientStub,UserSessionInfo,m_eventHandler);
 			}
 		}
 	}
@@ -654,6 +654,7 @@ class CreateGroupWindow extends JFrame{
 
 	private static final long serialVersionUID = 1L;
 	
+	ChattingWindow chattingwindow ;
 	CMClientStub m_clientStub;
 	TPClientEventHandler m_eventHandler;
 	
@@ -980,7 +981,7 @@ class CreateGroupWindow extends JFrame{
 		menuChoose.setText(menuName);
 		menuNameServer = "";
 				
-		new ChattingWindow(m_clientStub,m_eventHandler);
+		chattingwindow = new ChattingWindow(m_clientStub,m_eventHandler);
 	
 	}
 	

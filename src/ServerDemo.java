@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -188,6 +189,14 @@ public class ServerDemo extends JFrame {
 					int a=removeGroup("Hwa-yang", 1);
 					if(a != -1) printMessage("success removeGroup\n");
 					else printMessage("removeGroup failed\n");
+				}
+				// test
+				else if(InputString.equals("11")) {
+					// send GROUP INFO 
+					CMDummyEvent group_msg = new CMDummyEvent();
+					String str = "GROUP##";
+					group_msg.setDummyInfo(str+"1");
+					m_serverStub.send(group_msg,"k");
 				}
 				
 				else printMessage("---------WRONG COMMAND -------------");
@@ -578,8 +587,41 @@ public void serviceList() {
 		File fd;
 		String gnum = Integer.toString(groupnum);
 		String sgport= Integer.toString(gport);
+		
+		
+		String strText="";
+		int nBuffer;
 		try {
-			fd = new File("C:\\Users\\User\\Desktop\\2021-1\\CMserver2\\CMServer\\cm-session1.conf");
+			// 파일 읽기
+			BufferedReader buffRead = new BufferedReader(new FileReader("./cm-session1.conf"));  
+	        while ((nBuffer = buffRead.read()) != -1)  
+	        {  
+	            strText += (char)nBuffer;  
+	        }  
+	        printMessage(strText);
+	        buffRead.close();  
+			
+	        
+	        BufferedWriter buffWrite = new BufferedWriter(new FileWriter("./cm-session1.conf"));  
+	        String Text = strText.replaceAll("GROUP_NUM 1","GROUP_NUM 2");  
+	        // 파일 쓰기  
+	        buffWrite.write(Text, 0, Text.length());  
+	        // 파일 닫기  
+	        buffWrite.flush();  
+	        buffWrite.close();  
+
+	        
+	        
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
+		try {
+			fd = new File("./cm-session1.conf");
+			
 			FileWriter fw = new FileWriter(fd, true);
 			fw.write("\n");
 			fw.write("GROUP_NAME"+gnum+"			"+gname+"\n");
@@ -655,7 +697,7 @@ public void serviceList() {
 		String findgaddr; 
 		String findgport;
 		try {
-			fd = new File("C:\\Users\\User\\Desktop\\2021-1\\CMserver2\\CMServer\\cm-session1.conf");
+			fd = new File("./cm-session1.conf");
 			FileWriter fw = new FileWriter(fd, true);//이어쓰기
 			BufferedWriter bw = new BufferedWriter(fw);
 			FileReader fr = new FileReader(fd);

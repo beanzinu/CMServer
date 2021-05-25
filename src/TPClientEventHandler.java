@@ -70,7 +70,7 @@ public class TPClientEventHandler implements CMAppEventHandler {
 		}
 	}
 	
-	
+	// 임시로 만들어 놓음
 	private void processDummyEvent(CMEvent cme) {
 		
 		CMDummyEvent due = (CMDummyEvent) cme;
@@ -80,10 +80,11 @@ public class TPClientEventHandler implements CMAppEventHandler {
 		topic = token.nextToken();
 		if(topic.equals("GROUP")) {
 			group_id = token.nextToken();
-			m_mqttManager = (CMMqttManager) m_clientStub.findServiceManager(CMInfo.CM_MQTT_MANAGER);
-			m_mqttManager.connect();
+//			m_mqttManager = (CMMqttManager) m_clientStub.findServiceManager(CMInfo.CM_MQTT_MANAGER);
+//			m_mqttManager.connect();
 			
-			m_clientStub.changeGroup("1");
+			m_clientStub.changeGroup(group_id);
+			
 			
 			
 			System.out.println("----------------------------------------\n");
@@ -130,16 +131,20 @@ public class TPClientEventHandler implements CMAppEventHandler {
 	
 	private void processInterestEvent(CMEvent cme)
 	{
-		CMInterestEvent ie = (CMInterestEvent) cme;
-		switch(ie.getID())
+	
+		switch(cme.getID())
 		{
 		case CMInterestEvent.USER_TALK:
+			CMInterestEvent ie = (CMInterestEvent) cme;
 			//System.out.println("("+ie.getHandlerSession()+", "+ie.getHandlerGroup()+")");
 			//printMessage("("+ie.getHandlerSession()+", "+ie.getHandlerGroup()+")\n");
 			//System.out.println("<"+ie.getUserName()+">: "+ie.getTalk());
 			//printMessage("<"+ie.getUserName()+">: "+ie.getTalk()+"\n");
 			//m_client.CreateWindow.chatWindow.setText("");
-			m_client.joinWindow.chattingWindow.chatWindow.setText("<"+ie.getUserName()+">: "+ie.getTalk()+"\n");
+			// 내가 기존 그룹에 들어갔을 때
+//			m_client.joinWindow.chattingWindow.chatWindow.append("<"+ie.getUserName()+">: "+ie.getTalk()+"\n");
+			// 새로운 그룹을 만들었을 때 ( 내가 방장) 
+			m_client.createWindow.chattingwindow.chatWindow.append("<"+ie.getUserName()+">: "+ie.getTalk()+"\n");
 			break;
 		default:
 			return;
