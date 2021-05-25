@@ -3,6 +3,12 @@ import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Hashtable;
@@ -556,6 +562,9 @@ public void serviceList() {
 			return -1;
 		}
 		
+		//conf 수정
+		insertConf(groupNum+1,gname,gaddr,gport);
+		
 		//group DB에도 추가
 		int insert_check=InsertGroup(groupNum, group_host , restaurant, res_category, collected_amount, least_price);
 		if(insert_check == -1) {
@@ -563,6 +572,25 @@ public void serviceList() {
 			return -1;
 		}
 		else return groupNum;
+	}
+	
+	public void insertConf(int groupnum, String gname, String gaddr, int gport) {
+		File fd;
+		String gnum = Integer.toString(groupnum);
+		String sgport= Integer.toString(gport);
+		try {
+			fd = new File("C:\\Users\\User\\Desktop\\2021-1\\CMserver2\\CMServer\\cm-session1.conf");
+			FileWriter fw = new FileWriter(fd, true);
+			fw.write("\n");
+			fw.write("GROUP_NAME"+gnum+"			"+gname+"\n");
+			fw.write("GROUP_ADDR"+gnum+"			"+gaddr+"\n");
+			fw.write("GROUP_PORT"+gnum+"			"+sgport+"\n");
+			fw.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	
 	}
 	
 	//if client made group, we can insert a row in group_table(DB)
@@ -604,7 +632,13 @@ public void serviceList() {
 		
 		for(int i=0;i<s_num;i++) session=iter.next();
 		String gname = Integer.toString(group_id);
+		//session
 		session.removeGroup(gname);
+		
+		//conf
+		removeConf(group_id);
+		
+		//DB
 		int delete_check = deleteGroup(gname);
 		if(delete_check == -1) {
 			printMessage("send insert query fail\n");
@@ -612,6 +646,43 @@ public void serviceList() {
 		}
 		
 		return 0;
+	}
+	
+	public void removeConf(int group_id) {
+		File fd;
+		String findgname="GROUP_NAME"+Integer.toString(group_id+1)+"			"+Integer.toString(group_id);
+		printMessage(findgname);
+		String findgaddr; 
+		String findgport;
+		try {
+			fd = new File("C:\\Users\\User\\Desktop\\2021-1\\CMserver2\\CMServer\\cm-session1.conf");
+			FileWriter fw = new FileWriter(fd, true);//이어쓰기
+			BufferedWriter bw = new BufferedWriter(fw);
+			FileReader fr = new FileReader(fd);
+			BufferedReader br = new BufferedReader(fr);
+			String line="";
+			while((line = br.readLine()) != null) {
+	            String trimmedLine = line.trim();
+	            if(trimmedLine.equals(findgname)) {
+	            	line.replaceAll(line, "");
+	                findgaddr = br.readLine().trim();
+	                printMessage(findgaddr);
+	                findgaddr.replaceAll(findgaddr, "");	                
+	                findgport = br.readLine().trim();
+	                printMessage(findgport);
+	                findgport.replaceAll(findgport, "");	               
+	                break;
+	            	}
+				}
+			br.close();
+			fr.close();
+			bw.close();
+			fw.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	
 	}
 	
 	public int deleteGroup(String gname) {
