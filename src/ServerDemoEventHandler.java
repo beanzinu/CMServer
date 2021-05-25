@@ -18,7 +18,7 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 	public ServerDemoEventHandler(CMServerStub serverStub,ServerDemo server) {
 		m_serverStub = serverStub ;
 		m_server = server ;
-		
+
 	}
 	// Event 수신 시 어떤 타입인지 확인
 	@Override

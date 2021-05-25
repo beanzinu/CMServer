@@ -190,14 +190,23 @@ public class SimpleCMClient extends JFrame {
 						printMessage("My Group : " + user.getCurrentGroup()) ;
 					}	
 					else if (MenuString.equals("4")) {
-						String msg = "C2##g1##juice"; 
-						mqttManager.subscribe("g1",(byte)0) ;
+						String msg = "C2##1##juice"; 
+						mqttManager.subscribe("1",(byte)0) ;
 						CMDummyEvent Nmsg = new CMDummyEvent(); 
+						Nmsg.setHandlerSession("Hwa-yang");
 						Nmsg.setDummyInfo(msg);
 						m_clientStub.send(Nmsg,"SERVER");
 						
 						
 					}
+					else if (MenuString.equals("5")) {
+						String strTarget = "/g";
+						String strMessage = "hi hello";
+						m_clientStub.chat(strTarget, strMessage);
+						
+					}
+					
+					
 					else 
 						printMessage("--------WRONG COMMAND-----------");
 					
