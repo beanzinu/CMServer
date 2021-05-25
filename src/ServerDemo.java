@@ -652,13 +652,13 @@ public void serviceList() {
 			while((line = br.readLine()) != null) {
 	            String trimmedLine = line.trim();
 	            if(trimmedLine.equals(findgname)) {
-	            	line.replaceAll(line, "a");
+	            	line.replaceAll(line, "");
 	                findgaddr = br.readLine().trim();
 	                printMessage(findgaddr);
-	                findgaddr.replaceAll(findgaddr, "a");	                
+	                findgaddr.replaceAll(findgaddr, "");	                
 	                findgport = br.readLine().trim();
 	                printMessage(findgport);
-	                findgport.replaceAll(findgport, "a");	               
+	                findgport.replaceAll(findgport, "");	               
 	                break;
 	            	}
 				}
