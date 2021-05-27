@@ -1,22 +1,37 @@
-import java.io.*;
-
-import kr.ac.konkuk.ccslab.cm.event.CMDummyEvent;
-import kr.ac.konkuk.ccslab.cm.event.CMEvent;
-import kr.ac.konkuk.ccslab.cm.event.CMInterestEvent;
-import kr.ac.konkuk.ccslab.cm.event.CMSessionEvent;
-import kr.ac.konkuk.ccslab.cm.info.CMInteractionInfo;
-import kr.ac.konkuk.ccslab.cm.stub.CMClientStub;
-
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.*;
-import javax.swing.border.Border;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+import kr.ac.konkuk.ccslab.cm.event.CMDummyEvent;
+import kr.ac.konkuk.ccslab.cm.event.CMSessionEvent;
+import kr.ac.konkuk.ccslab.cm.info.CMInfo;
+import kr.ac.konkuk.ccslab.cm.info.CMInteractionInfo;
+import kr.ac.konkuk.ccslab.cm.manager.CMMqttManager;
+import kr.ac.konkuk.ccslab.cm.stub.CMClientStub;
 
 
 public class TPClient extends JFrame {
 	CMClientStub m_clientStub;
 	TPClientEventHandler m_eventHandler;
+	CMMqttManager mqttManager ;
+	CMDBManager m_cmdb ;
 	
 	// about swing
 	private static final long serialVersionUID = 1L;
@@ -267,7 +282,9 @@ public class TPClient extends JFrame {
 		groupNumInfo.setHorizontalAlignment(JLabel.CENTER);
 		groupNumInfo.setOpaque(true);
 		groupNumInfo.setBackground(Color.GRAY);
-		groupInfo = new JTextArea(" [ Store 1 ]  store :  BBQ  || now join user : 2\n [ Store 2 ]  store :  hongkong noodles  || now join user : 1"); // save group info & print to user 
+		
+//		groupInfo = new JTextArea(" [ Store 1 ]  store :  BBQ  || now join user : 2\n [ Store 2 ]  store :  hongkong noodles  || now join user : 1"); // save group info & print to user 
+		groupInfo = new JTextArea();
 		groupInfo.setEditable(false); 
 		groupInfo.setBackground(Color.gray);
 		
@@ -405,12 +422,21 @@ public class TPClient extends JFrame {
 		UserSessionInfo = "Hwa-yang";
 		
 		bRequestResult = m_clientStub.joinSession(UserSessionInfo);
+		mqttManager = (CMMqttManager) m_clientStub.findServiceManager(CMInfo.CM_MQTT_MANAGER);
+		mqttManager.connect();
+		mqttManager.subscribe(UserSessionInfo,(byte) 0) ;
+		
+		// [test] 
+		CheckGroupDB();
+		
+		
 		if(bRequestResult) {
 			System.out.println("successfully sent the session-join request.");
 			sessionInfo.setText("Session : session1");
 			panelGroup.setVisible(true);
 			backBtn.setVisible(true);
 			panelJoin.setVisible(false);
+			
 		}
 		else
 			System.err.println("failed the session-join request!");
@@ -423,6 +449,10 @@ public class TPClient extends JFrame {
 		UserSessionInfo = "Ja-yang";
 	
 		bRequestResult = m_clientStub.joinSession(UserSessionInfo);
+		mqttManager = (CMMqttManager) m_clientStub.findServiceManager(CMInfo.CM_MQTT_MANAGER);
+		mqttManager.connect();
+		mqttManager.subscribe(UserSessionInfo,(byte) 0) ;
+		
 		if(bRequestResult){
 			System.out.println("successfully sent the session-join request.");
 			sessionInfo.setText("Session : session2");
@@ -441,6 +471,10 @@ public class TPClient extends JFrame {
 		UserSessionInfo = "Un-yang";
 	
 		bRequestResult = m_clientStub.joinSession(UserSessionInfo);
+		mqttManager = (CMMqttManager) m_clientStub.findServiceManager(CMInfo.CM_MQTT_MANAGER);
+		mqttManager.connect();
+		mqttManager.subscribe(UserSessionInfo,(byte) 0) ;
+		
 		if(bRequestResult){
 			System.out.println("successfully sent the session-join request.");
 			sessionInfo.setText("Session : session3");
@@ -468,8 +502,24 @@ public class TPClient extends JFrame {
 	public void CheckGroupDB() 
 	{		 // check current group DB 
 				// server do 1
+			
+		//send "REQ_GROUP" to SERVER
+		CMDummyEvent e = new CMDummyEvent();
+		e.setDummyInfo("REQ_GROUP");
+		
+		CMInteractionInfo interInfo = m_clientStub.getCMInfo().getInteractionInfo();
+		String strDefServer = interInfo.getDefaultServerInfo().getServerName();
+		m_clientStub.send(e,strDefServer);
+		
 		
 	}
+	public void CheckGroupDB(String msg) {
+		
+		groupInfo.append(msg);
+		
+	}
+	
+	
 	
 	public void GotoBack() {
 		System.out.println("Go to Back!!");
@@ -971,7 +1021,7 @@ class CreateGroupWindow extends JFrame{
 		String temp = creategroup.toString();
 				
 		due.setDummyInfo(temp);
-		m_clientStub.broadcast(due);
+//		m_clientStub.broadcast(due); ?? 
 		m_clientStub.send(due, strDefServer);
 		due = null;
 		// clear menu info

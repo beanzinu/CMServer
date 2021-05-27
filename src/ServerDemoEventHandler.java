@@ -1,3 +1,6 @@
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import kr.ac.konkuk.ccslab.cm.event.CMDummyEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMSessionEvent;
@@ -32,8 +35,24 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 		case CMInfo.CM_MQTT_EVENT:
 			processMqttEvent(cme);
 			break;
-		case CMInfo.CM_DUMMY_EVENT: 
-			m_server.MakePublish(cme);
+		case CMInfo.CM_DUMMY_EVENT: {
+			CMDummyEvent de = (CMDummyEvent) cme ;
+			if (de.getDummyInfo().equals("REQ_GROUP"))
+			{
+				String user = de.getSender();
+				SendGroupInfo(user);
+			}
+			else 
+			{
+				m_server.MakePublish(cme);
+				// send GROUP INFO [ test ]
+				CMDummyEvent group_msg2 = new CMDummyEvent();
+				String str2 = "GROUP##";
+				group_msg2.setDummyInfo(str2+"1");
+				m_serverStub.send(group_msg2,"k");
+			}
+			break;
+		}
 		default :
 			return ;
 		}
@@ -123,6 +142,42 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 			printMessage(string.getSender() +":"+ string.getAppMessage());
 		}
 		
+	}
+	
+	private void SendGroupInfo(String user) {
+		// serverDemo cmdb
+		m_cmdb = m_server.m_cmdb ;
+		String strQuery = "select * from group_table"; 
+		ResultSet result = m_cmdb.sendSelectQuery(strQuery,m_serverStub.getCMInfo());
+		String sendMessage = "REQ##" ;
+		try {
+			while( result.next() == true) 
+			{
+				int group_id = result.getInt("group_id");
+				String group_host = result.getString("group_host");
+				String store_name = result.getString("store_name");
+				int collected_amount = result.getInt("collected_amount");
+				int least_price = result.getInt("least_price");
+				sendMessage= sendMessage + "-----------------------------------------" + '\n'
+						+ "[GROUP ID]  : " + Integer.toString(group_id) + '\n' +
+						"-----------------------------------------" + '\n'
+						+ "GROUP_HOST : " + group_host + '\n'
+						+ "STORE_NAME : " + store_name + '\n'
+						+ "COLLECTED_AMOUNT : " + Integer.toString(collected_amount) + '\n' 
+						+ "LEAST PRICE : " + Integer.toString(least_price) + '\n'
+						+ "-----------------------------------------" + '\n';
+			}
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		
+		
+		CMDummyEvent e = new CMDummyEvent();
+		e.setDummyInfo(sendMessage);
+		if (m_serverStub.send(e,user)) 
+			printMessage("send [REQ] MSG : "+sendMessage);
 	}
 	
 

@@ -11,6 +11,7 @@ import kr.ac.konkuk.ccslab.cm.event.mqttevent.CMMqttEvent;
 import kr.ac.konkuk.ccslab.cm.event.mqttevent.CMMqttEventPUBLISH;
 import kr.ac.konkuk.ccslab.cm.info.CMInfo;
 import kr.ac.konkuk.ccslab.cm.manager.CMMqttManager;
+import kr.ac.konkuk.ccslab.cm.manager.CMServiceManager;
 import kr.ac.konkuk.ccslab.cm.stub.CMClientStub;
 
 public class TPClientEventHandler implements CMAppEventHandler {
@@ -78,19 +79,25 @@ public class TPClientEventHandler implements CMAppEventHandler {
 		StringTokenizer token = new StringTokenizer(msg,"##");
 		String topic , group_id ;
 		topic = token.nextToken();
-		if(topic.equals("GROUP")) {
+		if(topic.equals("REJOIN")) {
+			String session = m_clientStub.getMyself().getCurrentSession();
+			m_clientStub.leaveSession();
+			m_clientStub.joinSession(session);
+		}
+		else if(topic.equals("GROUP")) {
 			group_id = token.nextToken();
-//			m_mqttManager = (CMMqttManager) m_clientStub.findServiceManager(CMInfo.CM_MQTT_MANAGER);
-//			m_mqttManager.connect();
-			
 			m_clientStub.changeGroup(group_id);
-			
-			
-			
-			System.out.println("----------------------------------------\n");
-			System.out.println(due.getDummyInfo()+'\n');
-			System.out.println("----------------------------------------\n");
 		}	
+		else if(topic.equals("REQ")) {
+			// get msg -> print
+			String Req_msg = token.nextToken();
+			m_client.CheckGroupDB(Req_msg);
+			
+		}
+		
+		
+		
+		
 	}
 	
 	private void processMqttEvent(CMEvent cme) {
@@ -104,9 +111,9 @@ public class TPClientEventHandler implements CMAppEventHandler {
 			topic = token.nextToken();
 			group_id = token.nextToken();
 			
+			m_client.createWindow.chattingwindow.chatWindow.append(string.getAppMessage()+'\n');
 			
 			m_mqttManager.subscribe(group_id,(byte) 0);
-			System.out.println(string.getAppMessage());
 			break;
 			
 			
@@ -119,6 +126,7 @@ public class TPClientEventHandler implements CMAppEventHandler {
 	private void processSessionEvent(CMEvent cme)
 	{
 		CMSessionEvent se = (CMSessionEvent)cme;
+		
 		switch(se.getID())
 		{
 		case CMSessionEvent.RESPONSE_SESSION_INFO:
@@ -155,7 +163,7 @@ public class TPClientEventHandler implements CMAppEventHandler {
 		private void processRESPONSE_SESSION_INFO(CMSessionEvent se)
 		{
 			Iterator<CMSessionInfo> iter = se.getSessionInfoList().iterator();
-
+			
 			System.out.format("%-60s%n", "------------------------------------------------------------");
 			System.out.format("%-20s%-20s%-10s%-10s%n", "name", "address", "port", "user num");
 			System.out.format("%-60s%n", "------------------------------------------------------------");

@@ -60,7 +60,7 @@ public class ServerDemo extends JFrame {
 	private CMServerStub m_serverStub ;
 	private ServerDemoEventHandler m_eventHandler ;
 	private CMInfo m_cmInfo;
-	private CMDBManager m_cmdb ;
+	public CMDBManager m_cmdb ;
 	boolean m_run = true ;
 	
 	
@@ -198,6 +198,13 @@ public class ServerDemo extends JFrame {
 					group_msg.setDummyInfo(str+"1");
 					m_serverStub.send(group_msg,"k");
 				}
+				else if(InputString.equals("12")) {
+					// send GROUP INFO 
+					CMDummyEvent group_msg = new CMDummyEvent();
+					String str = "REJOIN";
+					group_msg.setDummyInfo(str);
+					m_serverStub.send(group_msg,"k");
+				}
 				
 				else printMessage("---------WRONG COMMAND -------------");
 					
@@ -316,23 +323,33 @@ public void serviceList() {
 					int Result1 = m_cmdb.sendUpdateQuery(strQuery, m_cmInfo);
 					if (Result1 > 0 ) printMessage("menuDB UPDATE SUCCESS");
 		
-					// send GROUP INFO 
-					CMDummyEvent group_msg = new CMDummyEvent();
-					String str = "GROUP##";
-					group_msg.setDummyInfo(str+group_id);
-					m_serverStub.send(group_msg,UserName);
+//					// send event  [client rejoin] 
+//					CMDummyEvent group_msg1 = new CMDummyEvent();
+//					String str1 = "REJOIN##";
+//					group_msg1.setDummyInfo(str1);
+//					m_serverStub.send(group_msg1,UserName);
+				
+//					// send GROUP INFO
+//					CMDummyEvent group_msg2 = new CMDummyEvent();
+//					String str2 = "GROUP##";
+//					group_msg2.setDummyInfo(str2+group_id);
+//					m_serverStub.send(group_msg2,UserName);
 					
+
 					String pubMsg = "S1"+"##"+Integer.toString(group_id)+"##"+UserName + "##" + storeName + "##" + storeCat + "##" + Integer.toString(collected_amount) + "##" + Integer.toString(least_price) ;
 					printMessage("pub Msg : "+pubMsg);
 					boolean Result = MakePublish(strTopic,pubMsg);
 					if (Result) 
 						printMessage("PUB SUCCESS");
+					
+					
 				}
 				else 
 				{
 					printMessage("MakeGroup failed");
 					
 				}
+				
 				break;
 			}
 			case "C2" :
@@ -420,9 +437,10 @@ public void serviceList() {
 					printMessage("C2(group) : PUB SUCCESS");
 				break;
 			}
+			
 		}
 		
-		return true ;
+		return true;
 	}
 
 //	public boolean MakeOrder(String )
@@ -553,7 +571,7 @@ public void serviceList() {
 		//새로운 group이름
 		String gname = new String(Integer.toString(groupNum));
 		//새로운 group의 주소
-		StringBuffer gaddrformat= new StringBuffer("224.1.1."+Integer.toString(s_num+2));
+		StringBuffer gaddrformat= new StringBuffer("224.1.1."+Integer.toString(s_num+1));
 		gaddrformat.replace(6, 7, Integer.toString(groupNum+1));
 		String gaddr= new String(gaddrformat.toString());
 		System.out.println(gaddr);
@@ -568,6 +586,8 @@ public void serviceList() {
 		//group 생성
 	
 		if(session.createGroup(gname, gaddr, gport) == null){
+			printMessage("gname" + gname +"gaddr" + gaddr +"gport" + gport);
+			printMessage("여기ㅏ서 실패");
 			return -1;
 		}
 		
