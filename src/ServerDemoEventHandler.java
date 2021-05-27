@@ -46,10 +46,10 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 			{
 				m_server.MakePublish(cme);
 				// send GROUP INFO [ test ]
-				CMDummyEvent group_msg2 = new CMDummyEvent();
-				String str2 = "GROUP##";
-				group_msg2.setDummyInfo(str2+"1");
-				m_serverStub.send(group_msg2,"k");
+//				CMDummyEvent group_msg2 = new CMDummyEvent();
+//				String str2 = "GROUP##";
+//				group_msg2.setDummyInfo(str2+"1");
+//				m_serverStub.send(group_msg2,"k");
 			}
 			break;
 		}
@@ -148,6 +148,17 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 		// serverDemo cmdb
 		m_cmdb = m_server.m_cmdb ;
 		String strQuery = "select * from group_table"; 
+		// get num of groups
+		ResultSet num_group = m_cmdb.sendSelectQuery("select count('group_id') from group_table",m_serverStub.getCMInfo());
+		int numGroup = 0 ;
+		try {
+			num_group.next();
+			numGroup = num_group.getInt(1);
+		}
+		catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+		
 		ResultSet result = m_cmdb.sendSelectQuery(strQuery,m_serverStub.getCMInfo());
 		String sendMessage = "REQ##" ;
 		try {
@@ -171,7 +182,7 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
+		sendMessage = sendMessage + "##" + Integer.toString(numGroup);
 		
 		
 		CMDummyEvent e = new CMDummyEvent();

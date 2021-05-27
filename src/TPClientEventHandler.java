@@ -1,6 +1,8 @@
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
+import javax.swing.JTextArea;
+
 import kr.ac.konkuk.ccslab.cm.entity.CMSessionInfo;
 import kr.ac.konkuk.ccslab.cm.event.CMDummyEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMEvent;
@@ -11,7 +13,6 @@ import kr.ac.konkuk.ccslab.cm.event.mqttevent.CMMqttEvent;
 import kr.ac.konkuk.ccslab.cm.event.mqttevent.CMMqttEventPUBLISH;
 import kr.ac.konkuk.ccslab.cm.info.CMInfo;
 import kr.ac.konkuk.ccslab.cm.manager.CMMqttManager;
-import kr.ac.konkuk.ccslab.cm.manager.CMServiceManager;
 import kr.ac.konkuk.ccslab.cm.stub.CMClientStub;
 
 public class TPClientEventHandler implements CMAppEventHandler {
@@ -20,6 +21,8 @@ public class TPClientEventHandler implements CMAppEventHandler {
 	private TPClient m_client;
 	private CMMqttManager m_mqttManager ;
 	private CMInfo m_cmInfo ;
+	
+	private JTextArea chatWindow;
 	
 	public TPClientEventHandler(CMClientStub stub, TPClient client) {
 		m_clientStub = stub;
@@ -42,6 +45,7 @@ public class TPClientEventHandler implements CMAppEventHandler {
 			processSessionEvent(cme);
 			break;
 		case CMInfo.CM_INTEREST_EVENT:
+			System.out.println("~@!@##!#$$%@%&$%&$&");
 			processInterestEvent(cme);
 			break;
 	//	case CMInfo.CM_DATA_EVENT:
@@ -90,7 +94,9 @@ public class TPClientEventHandler implements CMAppEventHandler {
 		}	
 		else if(topic.equals("REQ")) {
 			// get msg -> print
-			String Req_msg = token.nextToken();
+			String Req_msg1 = token.nextToken();
+			String Req_msg2 = token.nextToken();
+			String Req_msg = Req_msg1 + "##" + Req_msg2;
 			m_client.CheckGroupDB(Req_msg);
 			
 		}
@@ -113,7 +119,7 @@ public class TPClientEventHandler implements CMAppEventHandler {
 			
 			m_client.createWindow.chattingwindow.chatWindow.append(string.getAppMessage()+'\n');
 			
-			m_mqttManager.subscribe(group_id,(byte) 0);
+//			m_mqttManager.subscribe(group_id,(byte) 0);
 			break;
 			
 			
@@ -152,7 +158,7 @@ public class TPClientEventHandler implements CMAppEventHandler {
 			// 내가 기존 그룹에 들어갔을 때
 //			m_client.joinWindow.chattingWindow.chatWindow.append("<"+ie.getUserName()+">: "+ie.getTalk()+"\n");
 			// 새로운 그룹을 만들었을 때 ( 내가 방장) 
-			m_client.createWindow.chattingwindow.chatWindow.append("<"+ie.getUserName()+">: "+ie.getTalk()+"\n");
+			chatWindow.append("<"+ie.getUserName()+">: "+ie.getTalk()+"\n");
 			break;
 		default:
 			return;
@@ -176,5 +182,9 @@ public class TPClientEventHandler implements CMAppEventHandler {
 			}
 		}
 		
-	
+		public void setWindow(JTextArea area) {
+			chatWindow = area;
+		}
+		
+		
 }

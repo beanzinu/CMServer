@@ -6,8 +6,7 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.StringTokenizer;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -514,8 +513,15 @@ public class TPClient extends JFrame {
 		
 	}
 	public void CheckGroupDB(String msg) {
+		StringTokenizer token = new StringTokenizer(msg,"##");
+		String GroupInfo = token.nextToken();
+		String Groupnum = token.nextToken();
 		
-		groupInfo.append(msg);
+		groupNumInfo.setText("Current Group Num : "+ Groupnum ) ;
+		
+		groupInfo.setText("");
+		groupInfo.append("start");
+		groupInfo.append(GroupInfo);
 		
 	}
 	
@@ -1404,6 +1410,9 @@ class ChattingWindow extends JFrame{
 		m_eventHandler = m_eventhandler;
 		MyActionListener cmActionListener = new MyActionListener();
 		
+		
+		
+		
 		setTitle("Create Group");
 		setSize(400,600);
 		setVisible(true);
@@ -1449,6 +1458,8 @@ class ChattingWindow extends JFrame{
 		
 		ChatWindowContainer.add(panelChat);
 		
+		// send handler chatWindow
+		m_eventHandler.setWindow(chatWindow);
 		
 	}
 	
