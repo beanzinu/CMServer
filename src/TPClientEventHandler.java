@@ -45,7 +45,6 @@ public class TPClientEventHandler implements CMAppEventHandler {
 			processSessionEvent(cme);
 			break;
 		case CMInfo.CM_INTEREST_EVENT:
-			System.out.println("~@!@##!#$$%@%&$%&$&");
 			processInterestEvent(cme);
 			break;
 	//	case CMInfo.CM_DATA_EVENT:
@@ -93,12 +92,30 @@ public class TPClientEventHandler implements CMAppEventHandler {
 			m_clientStub.changeGroup(group_id);
 		}	
 		else if(topic.equals("REQ")) {
-			// get msg -> print
+			// REQ -> DB 요청결과 
 			String Req_msg1 = token.nextToken();
+			// store DB 결과
+			if (Req_msg1.equals("store")) 
+			{
+				if(token.hasMoreTokens()==false)
+					m_client.createWindow.StoreList.setText("");
+				else 
+				{
+				String store_msg = token.nextToken();
+				m_client.createWindow.CheckStoreDB(store_msg);
+				}
+			}
+			else if (Req_msg1.equals("menu"))
+			{
+				String menu_msg = token.nextToken();
+				m_client.createWindow.CheckMenuDB(menu_msg);
+			}
+			else 
+			{
 			String Req_msg2 = token.nextToken();
 			String Req_msg = Req_msg1 + "##" + Req_msg2;
 			m_client.CheckGroupDB(Req_msg);
-			
+			}
 		}
 		
 		
@@ -117,7 +134,7 @@ public class TPClientEventHandler implements CMAppEventHandler {
 			topic = token.nextToken();
 			group_id = token.nextToken();
 			
-			m_client.createWindow.chattingwindow.chatWindow.append(string.getAppMessage()+'\n');
+			chatWindow.append(string.getAppMessage()+"\n");
 			
 //			m_mqttManager.subscribe(group_id,(byte) 0);
 			break;

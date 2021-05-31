@@ -520,7 +520,6 @@ public class TPClient extends JFrame {
 		groupNumInfo.setText("Current Group Num : "+ Groupnum ) ;
 		
 		groupInfo.setText("");
-		groupInfo.append("start");
 		groupInfo.append(GroupInfo);
 		
 	}
@@ -740,7 +739,7 @@ class CreateGroupWindow extends JFrame{
 	
 	private JLabel storeLabel;
 	private JLabel selectStoreLabel;
-	private JTextArea StoreList;
+	public JTextArea StoreList;
 	
 	private JTextField selectStore;
 	
@@ -772,6 +771,7 @@ class CreateGroupWindow extends JFrame{
 	
 	private int menuNum = 0;
 	
+	private String category ;
 	
 	CreateGroupWindow(CMClientStub m_windowstub, String sessionInfo, TPClientEventHandler m_eventhandler){
 		
@@ -854,7 +854,7 @@ class CreateGroupWindow extends JFrame{
 		panelSelectStore.setBounds(0, 450, 400, 40);
 		//panelSelectStore.setBackground(Color.gray);
 		
-		StoreList = new JTextArea(" [ Store 1 ] : hongkong banjum\n [ Store 2 ] : manrijangsung");
+		StoreList = new JTextArea();
 		StoreList.setBackground(Color.gray);
 		StoreList.setEditable(false); 
 		
@@ -908,7 +908,7 @@ class CreateGroupWindow extends JFrame{
 		panelSelectMenu2 = new JPanel(new GridLayout(0,2));
 		panelSelectMenu2.setBounds(50, 487, 300, 30);
 		
-		MenuList = new JTextArea(" [ Menu 1 ] : jajang noodle\n [ Menu 2 ] : jjamppong\n [ Menu 3 ] : sweet and sour pork");
+		MenuList = new JTextArea();
 		MenuList.setBackground(Color.gray);
 		MenuList.setEditable(false); 
 		menuChoose = new JTextArea("");
@@ -964,14 +964,44 @@ class CreateGroupWindow extends JFrame{
 	}
 	public void CheckStoreDB() { // check store DB // server do 2
 		
+			//send "REQ_STORE" to SERVER
+			CMDummyEvent e = new CMDummyEvent();
+			e.setDummyInfo("REQ_STORE##"+category);
+				
+			CMInteractionInfo interInfo = m_clientStub.getCMInfo().getInteractionInfo();
+			String strDefServer = interInfo.getDefaultServerInfo().getServerName();
+			m_clientStub.send(e,strDefServer);
+				
+		
 		
 	}
 	
+	public void CheckStoreDB(String msg) { // check store DB // server do 2
+			
+			StoreList.setText("");
+			StoreList.append(msg);
+
+	}
+	
+	
 	public void CheckMenuDB() { // check menu DB // server do 3
-		
+		//send "REQ_STORE" to SERVER
+		CMDummyEvent e = new CMDummyEvent();
+		e.setDummyInfo("REQ_MENU##"+storeNameServer);
+			
+		CMInteractionInfo interInfo = m_clientStub.getCMInfo().getInteractionInfo();
+		String strDefServer = interInfo.getDefaultServerInfo().getServerName();
+		m_clientStub.send(e,strDefServer);
+	}
+	
+	public void CheckMenuDB(String msg)
+	{
+		MenuList.setText("");
+		MenuList.append(msg);
 	}
 	
 	public void ChangePanelToStore() {
+		CheckStoreDB();
 		panelStore.setVisible(true);
 		backBtn.setVisible(true);
 		panelType.setVisible(false);
@@ -979,8 +1009,10 @@ class CreateGroupWindow extends JFrame{
 	}
 	
 	public void ChangePanelToMenu() {
+		storeNameServer = "";
 		storeNameServer = selectStore.getText();
 		selectStore.setText("");
+		CheckMenuDB();
 		
 		panelMenu.setVisible(true);
 		panelStore.setVisible(false);
@@ -1079,17 +1111,27 @@ class CreateGroupWindow extends JFrame{
 		{
 			JButton button = (JButton) e.getSource();
 			if(button.equals(typeButton[0])) {
+				category = "Korean";
+			
+				
 				ChangePanelToStore();
 				storeTypeNameServer = storeTypeNameServer.concat("Korean");
 				System.out.println("storeTypeNameServer : "+storeTypeNameServer);
 			}else if(button.equals(typeButton[1])){
+				category = "Japanese";
+				
+				
 				ChangePanelToStore();
 				storeTypeNameServer = storeTypeNameServer.concat("Japanese");
 				System.out.println("storeTypeNameServer : "+storeTypeNameServer);
 			}else if(button.equals(typeButton[2])){
+				category = "Chinese";
+				
 				ChangePanelToStore();
 				storeTypeNameServer = storeTypeNameServer.concat("Chinese");
 			}else if(button.equals(typeButton[3])){
+				category = "Western";
+			
 				ChangePanelToStore();
 				storeTypeNameServer = storeTypeNameServer.concat("Western");
 			}else if(button.equals(backBtn)){
@@ -1103,6 +1145,8 @@ class CreateGroupWindow extends JFrame{
 			}else if(button.equals(clearMenuBtn)) {
 				clearMenu();
 			}
+			
+			
 		}
 	}
 	
@@ -1459,7 +1503,7 @@ class ChattingWindow extends JFrame{
 		ChatWindowContainer.add(panelChat);
 		
 		// send handler chatWindow
-		m_eventHandler.setWindow(chatWindow);
+			m_eventHandler.setWindow(chatWindow);
 		
 	}
 	

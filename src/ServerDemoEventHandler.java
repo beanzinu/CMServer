@@ -1,5 +1,6 @@
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.StringTokenizer;
 
 import kr.ac.konkuk.ccslab.cm.event.CMDummyEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMEvent;
@@ -37,12 +38,25 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 			break;
 		case CMInfo.CM_DUMMY_EVENT: {
 			CMDummyEvent de = (CMDummyEvent) cme ;
-			if (de.getDummyInfo().equals("REQ_GROUP"))
+			String dummyMsg = de.getDummyInfo();
+			StringTokenizer token = new StringTokenizer(dummyMsg,"##");
+			String requestMsg = token.nextToken();
+			if (dummyMsg.equals("REQ_GROUP"))
 			{
 				String user = de.getSender();
 				SendGroupInfo(user);
 			}
-			else 
+			else if (requestMsg.equals("REQ_STORE"))
+			{
+				String user = de.getSender();
+				SendStoreInfo(user,token.nextToken());
+			}
+			else if(requestMsg.equals("REQ_MENU"))
+			{
+				String user = de.getSender();
+				SendMenuInfo(user,token.nextToken());
+			}
+			else
 			{
 				m_server.MakePublish(cme);
 				// send GROUP INFO [ test ]
@@ -165,6 +179,7 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 			while( result.next() == true) 
 			{
 				int group_id = result.getInt("group_id");
+				if(group_id==0) continue;
 				String group_host = result.getString("group_host");
 				String store_name = result.getString("store_name");
 				int collected_amount = result.getInt("collected_amount");
@@ -182,7 +197,11 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		
+		if(numGroup==1) return;
+		else numGroup = numGroup -1 ;
 		sendMessage = sendMessage + "##" + Integer.toString(numGroup);
+		
 		
 		
 		CMDummyEvent e = new CMDummyEvent();
@@ -190,8 +209,62 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 		if (m_serverStub.send(e,user)) 
 			printMessage("send [REQ] MSG : "+sendMessage);
 	}
+	private void SendStoreInfo(String user,String category) {
+		// serverDemo cmdb
+		m_cmdb = m_server.m_cmdb ;
+		String strQuery = "select * from store_table where store_category='"+category+"'" ;
+		
+		ResultSet result = m_cmdb.sendSelectQuery(strQuery,m_serverStub.getCMInfo());
+		String sendMessage = "REQ##store##";
+		try {
+			while( result.next() == true) 
+			{
+				String store_name = result.getString("store_name");
+				int least_price = result.getInt("least_price");
+				sendMessage = sendMessage + "-----------------------------------------" + '\n'
+				+ "[STORE NAME] : " + store_name + '\n' 
+				+ "   least price : " + Integer.toString(least_price) + '\n';
+			}
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		CMDummyEvent e = new CMDummyEvent();
+		e.setDummyInfo(sendMessage);
+		if (m_serverStub.send(e,user)) 
+			printMessage("send [REQ##STORE] MSG : "+sendMessage);
+	}
 	
-
+	private void SendMenuInfo(String user,String StoreName) {
+		// serverDemo cmdb
+		m_cmdb = m_server.m_cmdb ;
+		String strQuery = "select * from store_menu_table where store_name ='"+StoreName+"'" ;
+		
+		ResultSet result = m_cmdb.sendSelectQuery(strQuery,m_serverStub.getCMInfo());
+		String sendMessage = "REQ##menu##";
+		sendMessage = sendMessage + "["+StoreName+" MENU LIST ]" + '\n' ;
+		try {
+			while( result.next() == true) 
+			{
+				String menu_name = result.getString("menu");
+				int price = result.getInt("price");
+				sendMessage = sendMessage +		
+				"-----------------------------------------" + '\n'
+				+ "[MENU NAME] : " + menu_name + '\n' 
+				+ "[price] : " + Integer.toString(price) + '\n';
+			}
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		CMDummyEvent e = new CMDummyEvent();
+		e.setDummyInfo(sendMessage);
+		if (m_serverStub.send(e,user)) 
+			printMessage("send [REQ##MENU] MSG : "+sendMessage);
+	}
+	
 	
 	private void printMessage(String strText) {
 		m_server.printMessage(strText);

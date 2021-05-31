@@ -535,73 +535,71 @@ public void serviceList() {
 		return;
 	}
 	
-	public int makeGroup(String s_name, String group_host, String restaurant, String res_category, String collected_amount, String least_price) { // make group 
-		//String sname= new String("session1"); //client msg 로 받아야함(요청한 client가 현재 속한 session)
-		//String saddr= new String("192.168.189.1");//client msg
-		//int sport= 7777;//client msg
-		//CMSession session =new CMSession("session1", "192.168.189.1", 7770);//client가 속한 session 객체
-		CMInfo cmInfo=m_serverStub.getCMInfo();
-		CMInteractionInfo interInfo = m_serverStub.getCMInfo().getInteractionInfo();
-		Iterator<CMSession> iter = interInfo.getSessionList().iterator();
-		
-		CMSession session=iter.next(); int s_num;
-		if(s_name.equals(new String("Hwa-yang"))) s_num=0;
-		else if(s_name.equals(new String("Ja-yang"))) s_num=1;
-		else if(s_name.equals(new String("Un-yang"))) s_num=2;
-		else {
-			printMessage("session name wrong\n");
-			return -1;
-		}
-		
-		for(int i=0;i<s_num;i++) session=iter.next();
-		
-		//새로운 group의 이름
-		String strQuery = "select MAX(group_id) as max from group_table;"; //현재 group_id중 최댓값
-		CMDBManager.init(cmInfo);
-		CMDBManager.connectDB(cmInfo);
-		ResultSet rs = CMDBManager.sendSelectQuery(strQuery, cmInfo);
-		int groupNum = 1;
-		try {
-			groupNum = rs.getInt(1)+1;
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		//새로운 group이름
-		String gname = new String(Integer.toString(groupNum));
-		//새로운 group의 주소
-		StringBuffer gaddrformat= new StringBuffer("224.1.1."+Integer.toString(s_num+1));
-		gaddrformat.replace(6, 7, Integer.toString(groupNum+1));
-		String gaddr= new String(gaddrformat.toString());
-		System.out.println(gaddr);
-		
-		//새로운 group의 port
-		StringBuffer gportformat= new StringBuffer("700"+Integer.toString(s_num+2));
-		gportformat.replace(2, 3, Integer.toString(groupNum));
-		String s_gport= new String(gportformat.toString());
-		int gport= Integer.parseInt(s_gport);
-		System.out.println(gport);
-		
-		//group 생성
-	
-		if(session.createGroup(gname, gaddr, gport) == null){
-			printMessage("gname" + gname +"gaddr" + gaddr +"gport" + gport);
-			printMessage("여기ㅏ서 실패");
-			return -1;
-		}
-		
-		//conf 수정
-		insertConf(groupNum+1,gname,gaddr,gport);
-		
-		//group DB에도 추가
-		int insert_check=InsertGroup(groupNum, group_host , restaurant, res_category, collected_amount, least_price);
-		if(insert_check == -1) {
-			printMessage("send insert query fail\n");
-			return -1;
-		}
-		else return groupNum;
-	}
+	 public int makeGroup(String s_name, String group_host, String restaurant, String res_category, String collected_amount, String least_price) { // make group 
+	   
+	      CMInfo cmInfo=m_serverStub.getCMInfo();
+	      CMInteractionInfo interInfo = m_serverStub.getCMInfo().getInteractionInfo();
+	      Iterator<CMSession> iter = interInfo.getSessionList().iterator();
+	      
+	      CMSession session=iter.next(); int s_num;
+	      if(s_name.equals(new String("Hwa-yang"))) s_num=0;
+	      else if(s_name.equals(new String("Ja-yang"))) s_num=1;
+	      else if(s_name.equals(new String("Un-yang"))) s_num=2;
+	      else {
+	         printMessage("session name wrong\n");
+	         return -1;
+	      }
+	      
+	      for(int i=0;i<s_num;i++) session=iter.next();
+	      
+	      //새로운 group의 이름
+	      String strQuery = "select MAX(group_id) as max from group_table;"; //모든 test는 일단 Hwa-yang에서 하므로 hwa-yang 만 생각
+	      CMDBManager.init(cmInfo);
+	      CMDBManager.connectDB(cmInfo);
+	      ResultSet rs = CMDBManager.sendSelectQuery(strQuery, m_cmInfo);
+	      int groupNum=0;
+	      try {
+	        rs.next();
+	         groupNum = rs.getInt(1)+1;
+	         printMessage(Integer.toString(groupNum));
+	      } catch (SQLException e) {
+	         // TODO Auto-generated catch block
+	         e.printStackTrace();
+	      }
+	      printMessage(Integer.toString(groupNum));
+	      if(groupNum>9) return -1;
+	      
+	      //새로운 group이름
+	      String gname = new String(Integer.toString(groupNum));
+	      //새로운 group의 주소
+	      StringBuffer gaddrformat= new StringBuffer("224.1.1."+Integer.toString(s_num+2));
+	      gaddrformat.replace(6, 7, Integer.toString(groupNum+1));
+	      String gaddr= new String(gaddrformat.toString());
+	      System.out.println(gaddr);
+	      
+	      //새로운 group의 port
+	      StringBuffer gportformat= new StringBuffer("700"+Integer.toString(s_num+1));
+	      gportformat.replace(2, 3, Integer.toString(groupNum));
+	      String s_gport= new String(gportformat.toString());
+	      int gport= Integer.parseInt(s_gport);
+	      System.out.println(gport);
+	      
+//	      //group 생성
+//	      if(session.createGroup(gname, gaddr, gport) == null){
+//	         return -1;
+//	      }
+//	      
+//	      //conf 수정
+//	      insertConf(groupNum+1,gname,gaddr,gport);
+	      
+	      //group DB에도 추가
+	      int insert_check=InsertGroup(groupNum, group_host , restaurant, res_category, collected_amount, least_price);
+	      if(insert_check == -1) {
+	         printMessage("send insert query fail\n");
+	         return -1;
+	      }
+	      else return groupNum;
+	   }
 	
 	public void insertConf(int groupnum, String gname, String gaddr, int gport) {
 		File fd;
