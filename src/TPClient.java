@@ -6,6 +6,7 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Iterator;
 import java.util.StringTokenizer;
 
 import javax.swing.JButton;
@@ -24,6 +25,7 @@ import kr.ac.konkuk.ccslab.cm.info.CMInfo;
 import kr.ac.konkuk.ccslab.cm.info.CMInteractionInfo;
 import kr.ac.konkuk.ccslab.cm.manager.CMMqttManager;
 import kr.ac.konkuk.ccslab.cm.stub.CMClientStub;
+import kr.ac.konkuk.ccslab.cm.entity.CMSessionInfo;
 
 
 public class TPClient extends JFrame {
@@ -349,41 +351,32 @@ public class TPClient extends JFrame {
 		}
 		else 
 		{
-			bRequestResult = m_clientStub.loginCM(strUserName, strPassword);
-			if(bRequestResult)
+			m_clientStub.loginCM(strUserName, strPassword);
+		}
+	}
+	
+	public void loginpage(CMSessionEvent loginAckEvent) {
+		if(loginAckEvent != null)
+		{
+			// print login result
+			if(loginAckEvent.isValidUser() == 0)
 			{
-				System.out.println("successfully sent the login request.\n");
+				loginResult.setText("Fail Login ");
 			}
-			else
+			else if(loginAckEvent.isValidUser() == -1)
 			{
-				System.out.println("failed the login request!\n");
+				loginResult.setText("Already Login User ");
 			}
-			
-			CMSessionEvent loginAckEvent = m_clientStub.syncLoginCM(strUserName, strPassword);
-			
-			if(loginAckEvent != null)
+			else // success login
 			{
-				// print login result
-				if(loginAckEvent.isValidUser() == 0)
-				{
-					loginResult.setText("Fail Login ");
-				}
-				else if(loginAckEvent.isValidUser() == -1)
-				{
-					loginResult.setText("Already Login User ");
-				}
-				else // success login
-				{
-				}			
-			}
-			
-			SessionInfo();
-			panelJoin.setVisible(true);
-			panelLogout.setVisible(true);
-			panelLogin.setVisible(false);
-			
-			
-			userIdLabel.setText("|| "+ strUserName +" ||");
+				SessionInfo();
+				panelJoin.setVisible(true);
+				panelLogout.setVisible(true);
+				panelLogin.setVisible(false);
+				
+				
+				userIdLabel.setText("|| "+ strUserName +" ||");
+			}			
 		}
 	}
 
@@ -414,11 +407,11 @@ public class TPClient extends JFrame {
 		new SigninWindow(m_clientStub);
 	}
 	
-	public void JoinSession1() // join session1
+	public void JoinSession1(String session_name) // join session1
 	{
 		boolean bRequestResult = false;
 		
-		UserSessionInfo = "Hwa-yang";
+		UserSessionInfo = session_name;
 		
 		bRequestResult = m_clientStub.joinSession(UserSessionInfo);
 		mqttManager = (CMMqttManager) m_clientStub.findServiceManager(CMInfo.CM_MQTT_MANAGER);
@@ -431,7 +424,7 @@ public class TPClient extends JFrame {
 		
 		if(bRequestResult) {
 			System.out.println("successfully sent the session-join request.");
-			sessionInfo.setText("Session : session1");
+			sessionInfo.setText("Session : "+session_name);
 			panelGroup.setVisible(true);
 			backBtn.setVisible(true);
 			panelJoin.setVisible(false);
@@ -441,11 +434,11 @@ public class TPClient extends JFrame {
 			System.err.println("failed the session-join request!");
 		System.out.println("======");
 	}
-	public void JoinSession2() // join session2
+	public void JoinSession2(String session_name) // join session2
 	{			
 		boolean bRequestResult = false;
 		
-		UserSessionInfo = "Ja-yang";
+		UserSessionInfo = session_name;
 	
 		bRequestResult = m_clientStub.joinSession(UserSessionInfo);
 		mqttManager = (CMMqttManager) m_clientStub.findServiceManager(CMInfo.CM_MQTT_MANAGER);
@@ -454,7 +447,7 @@ public class TPClient extends JFrame {
 		
 		if(bRequestResult){
 			System.out.println("successfully sent the session-join request.");
-			sessionInfo.setText("Session : session2");
+			sessionInfo.setText("Session : "+session_name);
 			panelGroup.setVisible(true);
 			backBtn.setVisible(true);
 			panelJoin.setVisible(false);
@@ -463,11 +456,11 @@ public class TPClient extends JFrame {
 			System.err.println("failed the session-join request!");
 		System.out.println("======");
 	}
-	public void JoinSession3() // join session3
+	public void JoinSession3(String session_name) // join session3
 	{
 		boolean bRequestResult = false;
 		
-		UserSessionInfo = "Un-yang";
+		UserSessionInfo = session_name;
 	
 		bRequestResult = m_clientStub.joinSession(UserSessionInfo);
 		mqttManager = (CMMqttManager) m_clientStub.findServiceManager(CMInfo.CM_MQTT_MANAGER);
@@ -476,7 +469,7 @@ public class TPClient extends JFrame {
 		
 		if(bRequestResult){
 			System.out.println("successfully sent the session-join request.");
-			sessionInfo.setText("Session : session3");
+			sessionInfo.setText("Session : "+session_name);
 			panelGroup.setVisible(true);
 			backBtn.setVisible(true);
 			panelJoin.setVisible(false);
@@ -496,6 +489,13 @@ public class TPClient extends JFrame {
 		else
 			System.err.println("failed the session-info request!");
 		System.out.println("======");
+	}
+	
+	public void changeSessionB(String[] session_name) {
+		for(int j=0;j<3;j++) System.out.println(session_name[j]);
+		location1.setText(session_name[0]);
+		location2.setText(session_name[1]);
+		location3.setText(session_name[2]);
 	}
 	
 	public void CheckGroupDB() 
@@ -553,11 +553,11 @@ public class TPClient extends JFrame {
 			}else if(button.equals(logoutButton)){
 				LogoutUser();
 			}else if(button.equals(location1)) {
-				JoinSession1();
+				JoinSession1(location1.getText());
 			}else if(button.equals(location2)) {
-				JoinSession2();
+				JoinSession2(location2.getText());
 			}else if(button.equals(location3)) {
-				JoinSession3();
+				JoinSession3(location3.getText());
 			}else if(button.equals(backBtn)){
 				GotoBack();
 			}else if(button.equals(joinGroupBtn)){
