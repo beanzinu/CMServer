@@ -1301,7 +1301,7 @@ class joinGroupWindow extends JFrame{
 		selectMenuBtn.addActionListener(cmActionListener);
 		
 		panelMenuList.add(MenuList);
-		panelMenuList.add(new JScrollPane(MenuList));
+		//panelMenuList.add(new JScrollPane(MenuList));
 		
 		panelInputMenu.add(menuChooseLabel,BorderLayout.NORTH);
 		panelInputMenu.add(new JScrollPane(menuChoose),BorderLayout.CENTER);

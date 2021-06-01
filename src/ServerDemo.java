@@ -621,7 +621,7 @@ public void serviceList() {
 	      //새로운 group의 이름
 	      String strQuery = "select MAX(group_id) as max from group_table;"; //모든 test는 일단 Hwa-yang에서 하므로 hwa-yang 만 생각
 	      CMDBManager.init(cmInfo);
-	      CMDBManager.connectDB(cmInfo);
+	      //CMDBManager.connectDB(cmInfo);
 	      ResultSet rs = CMDBManager.sendSelectQuery(strQuery, m_cmInfo);
 	      int groupNum=0;
 	      try {
@@ -726,8 +726,8 @@ public void serviceList() {
 		String strQuery = "insert into group_table (group_id, group_host, store_name, store_category, collected_amount, least_price) values ('" 
 				+Integer.toString(group_id)+"','"+group_host+"','"+restaurant+"','"+res_category+"','"+collected_amount+"','"+least_price+"');";
 		CMDBManager.init(cmInfo);
-		boolean a= CMDBManager.connectDB(cmInfo);
-		System.out.println("connect sucess: "+a);
+		//boolean a= CMDBManager.connectDB(cmInfo);
+		//System.out.println("connect sucess: "+a);
 		int ret = CMDBManager.sendUpdateQuery(strQuery, cmInfo);
 
 		if(ret == -1)
@@ -814,8 +814,8 @@ public void serviceList() {
 	public int deleteGroup(String gname) {
 		CMInfo cmInfo=m_serverStub.getCMInfo();
 		CMDBManager.init(cmInfo);
-		boolean a= CMDBManager.connectDB(cmInfo);
-		System.out.println("connect sucess: "+a);
+		//boolean a= CMDBManager.connectDB(cmInfo);
+		//System.out.println("connect sucess: "+a);
 		String QueryTogroup = "delete from group_table where group_id="+gname+";";
 		String QueryTomenu = "delete from group_menu_table where group_id="+gname+";";
 		
