@@ -22,7 +22,7 @@ public class TPClientEventHandler implements CMAppEventHandler {
 	private CMMqttManager m_mqttManager ;
 	private CMInfo m_cmInfo ;
 	
-	private JTextArea chatWindow;
+	private JTextArea chatWindow = null;
 	
 	public TPClientEventHandler(CMClientStub stub, TPClient client) {
 		m_clientStub = stub;
@@ -105,11 +105,18 @@ public class TPClientEventHandler implements CMAppEventHandler {
 				m_client.createWindow.CheckStoreDB(store_msg);
 				}
 			}
+			// create group db result
 			else if (Req_msg1.equals("menu"))
 			{
 				String menu_msg = token.nextToken();
 				m_client.createWindow.CheckMenuDB(menu_msg);
 			}
+			else if (Req_msg1.equals("menu2"))
+			{
+				String menu_msg = token.nextToken();
+				m_client.joinWindow.checkDB(menu_msg);
+			}
+			// main group db result
 			else 
 			{
 			String Req_msg2 = token.nextToken();
@@ -134,6 +141,7 @@ public class TPClientEventHandler implements CMAppEventHandler {
 			topic = token.nextToken();
 			group_id = token.nextToken();
 			
+			while(chatWindow == null);
 			chatWindow.append(string.getAppMessage()+"\n");
 			
 //			m_mqttManager.subscribe(group_id,(byte) 0);

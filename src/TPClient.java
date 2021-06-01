@@ -1182,7 +1182,7 @@ class joinGroupWindow extends JFrame{
 	
 	private JLabel menuLabel;
 	private JLabel selectMenuLabel;
-	private JLabel MenuList;
+	private JTextArea MenuList;
 	private JLabel menuChooseLabel;
 	
 	private JTextField selectMenu;
@@ -1273,7 +1273,10 @@ class joinGroupWindow extends JFrame{
 		panelSelectMenu2 = new JPanel(new GridLayout(0,2));
 		panelSelectMenu2.setBounds(50, 487, 300, 30);
 		
-		MenuList = new JLabel("<HTML> [ Menu 1 ] : jajang noodle<br> [ Menu 2 ] : jjamppong<br> [ Menu 3 ] : sweet and sour pork</HTML>");
+		//MenuList = new JLabel("<HTML> [ Menu 1 ] : jajang noodle<br> [ Menu 2 ] : jjamppong<br> [ Menu 3 ] : sweet and sour pork</HTML>");
+		MenuList = new JTextArea();
+		MenuList.setBackground(Color.gray);
+		MenuList.setEditable(false);
 		menuChoose = new JTextArea("");
 		
 		menuChooseLabel = new JLabel("Choosen menu");
@@ -1295,6 +1298,7 @@ class joinGroupWindow extends JFrame{
 		selectMenuBtn.addActionListener(cmActionListener);
 		
 		panelMenuList.add(MenuList);
+		panelMenuList.add(new JScrollPane(MenuList));
 		
 		panelInputMenu.add(menuChooseLabel,BorderLayout.NORTH);
 		panelInputMenu.add(new JScrollPane(menuChoose),BorderLayout.CENTER);
@@ -1401,8 +1405,22 @@ class joinGroupWindow extends JFrame{
 		else if(panelCount==0)
 			dispose();
 	}
-
-	
+	// Check Menu List from DB
+	public void checkDB() {
+		//send "REQ_STORE" to SERVER
+		CMDummyEvent e = new CMDummyEvent();
+		e.setDummyInfo("REQ_MENU2##"+groupNo.getText());
+			
+		CMInteractionInfo interInfo = m_clientStub.getCMInfo().getInteractionInfo();
+		String strDefServer = interInfo.getDefaultServerInfo().getServerName();
+		m_clientStub.send(e,strDefServer);
+			
+	}
+	public void checkDB(String msg)
+	{
+		MenuList.setText("");
+		MenuList.setText(msg);
+	}
 	
 	class MyActionListener implements ActionListener {
 		
@@ -1410,6 +1428,7 @@ class joinGroupWindow extends JFrame{
 		{
 			JButton button = (JButton) e.getSource();
 			if(button.equals(OKBtn)) {
+				checkDB();
 				select2menu();
 			}else if(button.equals(backBtn)) {
 				back();

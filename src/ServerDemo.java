@@ -205,6 +205,18 @@ public class ServerDemo extends JFrame {
 					group_msg.setDummyInfo(str);
 					m_serverStub.send(group_msg,"k");
 				}
+				else if(InputString.equals("reset"))
+				{
+					
+					String strQuery = "delete from group_table where not group_host='default'";
+					m_cmdb.sendUpdateQuery(strQuery, m_cmInfo);
+					String strQuery1 = "delete from group_menu_table";
+					m_cmdb.sendUpdateQuery(strQuery1, m_cmInfo);
+					String strQuery2 = "delete from group_menu_table";
+					m_cmdb.sendUpdateQuery(strQuery1, m_cmInfo);
+					printMessage("DB RESET SUCCESS");
+				}
+				
 				
 				else printMessage("---------WRONG COMMAND -------------");
 					
@@ -261,7 +273,7 @@ public void serviceList() {
 				printMessage("8. getGroup : select group DB");
 				printMessage("9. makeGroup : make group in session & DB");
 				printMessage("10. removeGroup : remove group in session & DB");
-				
+				printMessage("reset : reset your DB Information");
 				printMessage("------------------------------");
 			
 		

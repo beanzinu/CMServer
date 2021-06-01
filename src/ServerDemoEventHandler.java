@@ -41,20 +41,25 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 			String dummyMsg = de.getDummyInfo();
 			StringTokenizer token = new StringTokenizer(dummyMsg,"##");
 			String requestMsg = token.nextToken();
+			String user = de.getSender();
 			if (dummyMsg.equals("REQ_GROUP"))
 			{
-				String user = de.getSender();
 				SendGroupInfo(user);
 			}
+			// create Group store DB
 			else if (requestMsg.equals("REQ_STORE"))
 			{
-				String user = de.getSender();
 				SendStoreInfo(user,token.nextToken());
 			}
+			// create Group Menu DB
 			else if(requestMsg.equals("REQ_MENU"))
 			{
-				String user = de.getSender();
 				SendMenuInfo(user,token.nextToken());
+			}
+			// join Group Menu DB
+			else if (requestMsg.equals("REQ_MENU2"))
+			{
+				SendMenuInfo2(user,token.nextToken());
 			}
 			else
 			{
@@ -264,7 +269,47 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 		if (m_serverStub.send(e,user)) 
 			printMessage("send [REQ##MENU] MSG : "+sendMessage);
 	}
-	
+	private void SendMenuInfo2(String user,String group_id) {
+		// serverDemo cmdb
+				m_cmdb = m_server.m_cmdb ;
+				String PrestrQuery = "select store_name from group_table where group_id='"+group_id+"'" ;
+				ResultSet Preresult = m_cmdb.sendSelectQuery(PrestrQuery, m_serverStub.getCMInfo());
+				String StoreName = null ;
+				try {
+					while( Preresult.next() == true) 
+					{
+						StoreName = Preresult.getString("store_name");
+					}
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			
+				
+				String strQuery = "select * from store_menu_table where store_name='"+StoreName+"'";
+				ResultSet result = m_cmdb.sendSelectQuery(strQuery,m_serverStub.getCMInfo());
+				String sendMessage = "REQ##menu2##";
+				sendMessage = sendMessage + "["+StoreName+" MENU LIST ]" + '\n' ;
+				try {
+					while( result.next() == true) 
+					{
+						String menu_name = result.getString("menu");
+						int price = result.getInt("price");
+						sendMessage = sendMessage +		
+						"-----------------------------------------" + '\n'
+						+ "[MENU NAME] : " + menu_name + '\n' 
+						+ "[price] : " + Integer.toString(price) + '\n';
+					}
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				CMDummyEvent e = new CMDummyEvent();
+				e.setDummyInfo(sendMessage);
+				if (m_serverStub.send(e,user)) 
+					printMessage("send [REQ##MENU2] MSG : "+sendMessage);
+	}
 	
 	private void printMessage(String strText) {
 		m_server.printMessage(strText);
