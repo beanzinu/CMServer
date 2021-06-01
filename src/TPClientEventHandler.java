@@ -5,6 +5,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 
 import kr.ac.konkuk.ccslab.cm.entity.CMSessionInfo;
+import kr.ac.konkuk.ccslab.cm.entity.CMUser;
 import kr.ac.konkuk.ccslab.cm.event.CMDummyEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMInterestEvent;
@@ -13,6 +14,7 @@ import kr.ac.konkuk.ccslab.cm.event.handler.CMAppEventHandler;
 import kr.ac.konkuk.ccslab.cm.event.mqttevent.CMMqttEvent;
 import kr.ac.konkuk.ccslab.cm.event.mqttevent.CMMqttEventPUBLISH;
 import kr.ac.konkuk.ccslab.cm.info.CMInfo;
+import kr.ac.konkuk.ccslab.cm.info.CMInteractionInfo;
 import kr.ac.konkuk.ccslab.cm.manager.CMMqttManager;
 import kr.ac.konkuk.ccslab.cm.stub.CMClientStub;
 
@@ -156,10 +158,12 @@ public class TPClientEventHandler implements CMAppEventHandler {
 				System.out.println(group_id + "바뀔그룹");
 				m_clientStub.changeGroup(group_id);
 				String Mygroup =myself.getCurrentGroup();
+
 				chatWindow.append("현재 나의 그룹 :" + Mygroup +" 성공적으로 참여하였습니다.\n");
 				
 				if(topic.equals("S2")) {
 					chatWindow.append(group_id + "주문 완료");
+
 					JOptionPane aa=new JOptionPane();
 					aa.showMessageDialog(null,"주문이 완료되었습니다.");
 				}
@@ -168,11 +172,13 @@ public class TPClientEventHandler implements CMAppEventHandler {
 				
 				String Mygroup =myself.getCurrentGroup();
 				String MyName = myself.getName();
-				//chatWindow.append("�쁽�옱 �굹�쓽 洹몃９" + Mygroup);
+
+				//chatWindow.append("현재 나의 그룹" + Mygroup);
 				
 				if(group_id.equals(Mygroup)) {
 					if(topic.equals("S1")) {
-						chatWindow.append(UserName + "님이"+group_id + "번째 그룹에 참여하였습니다.\n");
+						chatWindow.append(UserName + "님이 "+group_id + "번째 그룹에 참여하였습니다.\n");
+
 					}
 					else if(topic.equals("S2")) {
 						chatWindow.append(group_id + "번그룹 주문완료");

@@ -422,7 +422,8 @@ public void serviceList() {
 					
 					if ( collected_amount >= least_price ) 
 					{
-//						MakeOrder(group_id) ;
+						
+						MakeOrder(group_id) ;
 						MakePublish("Hwa-yang","S2##"+group_id+"##"+UserName) ; // session
 						//MakePublish(group_id,"S2##"+group_id) ; // group 
 						
@@ -431,7 +432,6 @@ public void serviceList() {
 							printMessage("remove group is success" );
 						}
 						break;
-					
 					}
 					
 					
@@ -461,7 +461,7 @@ public void serviceList() {
 		return true;
 	}
 
-public boolean MakeOrder(String group_id) {
+	public boolean MakeOrder(String group_id) {
 		
 		int amount = 0;
 		String member = "a";
@@ -501,7 +501,7 @@ public boolean MakeOrder(String group_id) {
 		
 			j++;
 		}
-		//MakePublish("Hwa-yang","S2##ÁÖ¹®¿Ï·á");
+		//MakePublish("Hwa-yang","S2##ì£¼ë¬¸?™„ë£?");
 		
 		
 		
