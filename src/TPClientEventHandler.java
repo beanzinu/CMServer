@@ -74,7 +74,7 @@ public class TPClientEventHandler implements CMAppEventHandler {
 		}
 	}
 	
-	// �ӽ÷� ����� ����
+	// 임시로 만들어 놓음
 	private void processDummyEvent(CMEvent cme) {
 		
 		CMDummyEvent due = (CMDummyEvent) cme;
@@ -92,9 +92,9 @@ public class TPClientEventHandler implements CMAppEventHandler {
 			m_clientStub.changeGroup(group_id);
 		}	
 		else if(topic.equals("REQ")) {
-			// REQ -> DB ��û��� 
+			// REQ -> DB 요청결과 
 			String Req_msg1 = token.nextToken();
-			// store DB ���
+			// store DB 결과
 			if (Req_msg1.equals("store")) 
 			{
 				if(token.hasMoreTokens()==false)
@@ -127,19 +127,58 @@ public class TPClientEventHandler implements CMAppEventHandler {
 		
 		switch(cme.getID()) {
 		case CMMqttEvent.PUBLISH :
+			
+			CMInteractionInfo interInfo = m_clientStub.getCMInfo().getInteractionInfo();
+			CMUser myself = interInfo.getMyself();
+			String Firstgroup =myself.getCurrentGroup();
+			
 			CMMqttEventPUBLISH string = (CMMqttEventPUBLISH) cme ;
 			String msg = string.getAppMessage() ;
-			String topic , group_id ;
+			
+			
+			
+			String topic , group_id, UserName ;
 			StringTokenizer token = new StringTokenizer(msg,"##");
 			topic = token.nextToken();
 			group_id = token.nextToken();
+			UserName = token.nextToken();
+			if(Firstgroup.equals("g1"))
+			{
+				System.out.println(group_id + "바뀔그룹");
+				m_clientStub.changeGroup(group_id);
+				String Mygroup =myself.getCurrentGroup();
+				chatWindow.append("현재 나의 그룹" + Mygroup +" 성공적으로 참여하였습니다.\n");
+				
+				if(topic.equals("S2")) {
+					chatWindow.append(group_id + " 주문완료");
+					JOptionPane aa=new JOptionPane();
+					aa.showMessageDialog(null,"주문이 완료되었습니다.");
+				}
+			}
+			else {
+				
+				String Mygroup =myself.getCurrentGroup();
+				String MyName = myself.getName();
+				//chatWindow.append("현재 나의 그룹" + Mygroup);
+				
+				if(group_id.equals(Mygroup)) {
+					if(topic.equals("S1")) {
+						chatWindow.append(UserName + "님이 "+group_id + "번째 그룹에 참여하였습니다.\n");
+					}
+					else if(topic.equals("S2")) {
+						chatWindow.append(group_id + "번그룹 주문완료");
+						JOptionPane aa=new JOptionPane();
+						aa.showMessageDialog(null,"주문이 완료되었습니다.");
+					}
+				//chatWindow.append(string.getAppMessage()+"\n");
+				}
 			
-			chatWindow.append(string.getAppMessage()+"\n");
+			
 			
 //			m_mqttManager.subscribe(group_id,(byte) 0);
 			break;
 			
-			
+			}
 		}
 		
 		
@@ -190,9 +229,9 @@ public class TPClientEventHandler implements CMAppEventHandler {
 			//System.out.println("<"+ie.getUserName()+">: "+ie.getTalk());
 			//printMessage("<"+ie.getUserName()+">: "+ie.getTalk()+"\n");
 			//m_client.CreateWindow.chatWindow.setText("");
-			// ���� ���� �׷쿡 ���� ��
+			// 내가 기존 그룹에 들어갔을 때
 //			m_client.joinWindow.chattingWindow.chatWindow.append("<"+ie.getUserName()+">: "+ie.getTalk()+"\n");
-			// ���ο� �׷��� ������� �� ( ���� ����) 
+			// 새로운 그룹을 만들었을 때 ( 내가 방장) 
 			chatWindow.append("<"+ie.getUserName()+">: "+ie.getTalk()+"\n");
 			break;
 		default:
