@@ -410,10 +410,16 @@ public void serviceList() {
 					
 					if ( collected_amount >= least_price ) 
 					{
-						MakeOrder() ;
-						MakePublish(sessionName,"S2##"+group_id) ; // session
-						MakePublish(group_id,"S2##"+group_id) ; // group 
-					
+						
+						MakeOrder(group_id) ;
+						MakePublish("Hwa-yang","S2##"+group_id+"##"+UserName) ; // session
+						//MakePublish(group_id,"S2##"+group_id) ; // group 
+						
+						int a =removeGroup("Hwa-yang",Integer.parseInt(group_id));
+						if(a == 0) {
+							printMessage("remove group is success" );
+						}
+						break;
 					}
 					
 					
@@ -426,10 +432,10 @@ public void serviceList() {
 			
 				
 				
-				String pubMsg = "S1"+"##"+group_id+"##"+group_host + "##" + storeName + "##" + storeCat + "##" + Integer.toString(collected_amount) + "##" + Integer.toString(least_price) ;
+				String pubMsg = "S1"+"##"+group_id+"##"+UserName + "##" + storeName + "##" + storeCat + "##" + Integer.toString(collected_amount) + "##" + Integer.toString(least_price) ;
 				printMessage("pubMsg :"+pubMsg);
 				// publish to session
-				boolean bRequest = MakePublish(sessionName,pubMsg);
+				boolean bRequest = MakePublish("Hwa-yang",pubMsg);
 				if (bRequest) 
 					printMessage("C2(session) : PUB SUCCESS");
 				boolean bRequest1 = MakePublish(group_id,pubMsg);
@@ -440,6 +446,7 @@ public void serviceList() {
 			
 		}
 		
+	
 		return true;
 	}
 
@@ -475,17 +482,20 @@ public void serviceList() {
 				e1.printStackTrace();
 			}
 			
-			if(user == member) {
-				break;
-			}
+			
 			printMessage(member + " "+amount);
-			String strQuery2 = "update deposit_db set deposit = deposit-"+Integer.toString(amount)+" where userName = '"+member+"';";
-			int Result2 = m_cmdb.sendUpdateQuery(strQuery2, m_cmInfo);
-			if (Result2 > 0 ) printMessage("C2 : group_table update success");
+			String strQuery1 = "update deposit_db set deposit = deposit-"+Integer.toString(amount)+" where userName = '"+member+"';";
+			int Result1 = m_cmdb.sendUpdateQuery(strQuery1, m_cmInfo);
+			if (Result1 > 0 ) printMessage("C2 : deposit_table update success");
 		
 			j++;
 		}
-		MakePublish("Hwa-yang","S2##주문완료");
+		//MakePublish("Hwa-yang","S2##주문완료");
+		
+		
+		
+		
+		
 		
 		return true;
 	}
