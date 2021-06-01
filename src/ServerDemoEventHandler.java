@@ -4,6 +4,7 @@ import java.util.StringTokenizer;
 
 import kr.ac.konkuk.ccslab.cm.event.CMDummyEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMEvent;
+import kr.ac.konkuk.ccslab.cm.event.CMInterestEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMSessionEvent;
 import kr.ac.konkuk.ccslab.cm.event.handler.CMAppEventHandler;
 import kr.ac.konkuk.ccslab.cm.event.mqttevent.CMMqttEvent;
@@ -32,6 +33,9 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 		{
 		case CMInfo.CM_SESSION_EVENT :
 			LOGIN(cme);
+			break;
+		case CMInfo.CM_INTEREST_EVENT :
+			processInterestEvent(cme);
 			break;
 		case CMInfo.CM_MQTT_EVENT:
 			processMqttEvent(cme);
@@ -76,6 +80,25 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 			return ;
 		}
 	}
+	private void processInterestEvent(CMEvent cme)
+	{
+		CMInterestEvent ie = (CMInterestEvent) cme;
+		switch(ie.getID())
+		{
+		case CMInterestEvent.USER_ENTER : 
+		case CMInterestEvent.USER_LEAVE:
+			String session = cme.getHandlerSession();
+			String group = ie.getCurrentGroup();
+			if ( !group.equals("g1")&& !group.equals("")) {
+				m_server.MakePublish(session,"USER##"+group) ;
+				m_server.printMessage("User info [group]:"+group+" [session]:"+session+" request from client");	
+			}
+			break;
+		}
+		
+	}
+	
+	
 	// 肺弊牢 棺 技记 包府
 	private void LOGIN(CMEvent cme)
 	{
@@ -107,6 +130,10 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 			}
 			break;
 		case CMSessionEvent.LOGOUT:
+
+			// publish to everyone in the session
+				m_server.MakePublish("Hwa-yang","USER##all") ;
+
 			printMessage("["+ID+"] logs out.");
 			break;
 		case CMSessionEvent.REQUEST_SESSION_INFO:
