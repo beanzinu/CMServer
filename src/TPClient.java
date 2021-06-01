@@ -996,8 +996,7 @@ class CreateGroupWindow extends JFrame{
 	
 	public void CheckMenuDB(String msg)
 	{
-		MenuList.setText("");
-		MenuList.append(msg);
+		MenuList.setText(msg);
 	}
 	
 	public void ChangePanelToStore() {
@@ -1058,6 +1057,9 @@ class CreateGroupWindow extends JFrame{
 		CMDummyEvent due = new CMDummyEvent();
 		String temp = creategroup.toString();
 				
+		// chatting window 
+		chattingwindow = new ChattingWindow(m_clientStub,m_eventHandler);
+		
 		due.setDummyInfo(temp);
 //		m_clientStub.broadcast(due); ?? 
 		m_clientStub.send(due, strDefServer);
@@ -1069,7 +1071,7 @@ class CreateGroupWindow extends JFrame{
 		menuChoose.setText(menuName);
 		menuNameServer = "";
 				
-		chattingwindow = new ChattingWindow(m_clientStub,m_eventHandler);
+		
 	
 	}
 	
@@ -1158,6 +1160,7 @@ class joinGroupWindow extends JFrame{
 	CMClientStub m_clientStub;
 	TPClientEventHandler m_eventHandler;
 	
+	private String myGroup ;
 	private JPanel groupselectPanel;
 	private JPanel groupPanel;
 	
@@ -1330,13 +1333,14 @@ class joinGroupWindow extends JFrame{
 	}
 	public void select2menu() {
 		No = groupNo.getText();
+		groupNo.setText("");
 		joingroup.append(No+"##");
 		
 		panelCount++;
 		
 		groupselectPanel.setVisible(false);
 		panelMenu.setVisible(true);
-		groupPanel.setVisible(false);
+		//groupPanel.setVisible(false);//
 	}
 	public void addMenu() { // think point : make sure it's a real menu && scroll
 		String temp =null;
@@ -1379,11 +1383,13 @@ class joinGroupWindow extends JFrame{
 		CMInteractionInfo interInfo = m_clientStub.getCMInfo().getInteractionInfo();
 		String strDefServer = interInfo.getDefaultServerInfo().getServerName();
 		
+		
 		CMDummyEvent due = new CMDummyEvent();
 		temp = joingroup.toString();
 				
 		due.setDummyInfo(temp);
-		m_clientStub.broadcast(due);
+		due.setHandlerSession(m_clientStub.getMyself().getCurrentSession());
+		//m_clientStub.broadcast(due);
 		m_clientStub.send(due, strDefServer);
 		due = null;
 		
@@ -1399,7 +1405,7 @@ class joinGroupWindow extends JFrame{
 			
 			groupselectPanel.setVisible(true);
 			panelMenu.setVisible(false);
-			groupPanel.setVisible(false);			
+			//groupPanel.setVisible(false);			
 			
 		}
 		else if(panelCount==0)
@@ -1409,8 +1415,10 @@ class joinGroupWindow extends JFrame{
 	public void checkDB() {
 		//send "REQ_STORE" to SERVER
 		CMDummyEvent e = new CMDummyEvent();
-		e.setDummyInfo("REQ_MENU2##"+groupNo.getText());
-			
+		myGroup = groupNo.getText();
+		e.setDummyInfo("REQ_MENU2##"+myGroup);
+		System.out.println(e.getDummyInfo());	
+		
 		CMInteractionInfo interInfo = m_clientStub.getCMInfo().getInteractionInfo();
 		String strDefServer = interInfo.getDefaultServerInfo().getServerName();
 		m_clientStub.send(e,strDefServer);
@@ -1437,8 +1445,9 @@ class joinGroupWindow extends JFrame{
 			}else if(button.equals(clearMenuBtn)) {
 				clearMenu();
 			}else if(button.equals(selectMenuBtn)) {
-				joinGroup();
 				chattingWindow = new ChattingWindow(m_clientStub,m_eventHandler);
+				//m_clientStub.changeGroup(myGroup);
+				joinGroup();
 			}
 		
 		}

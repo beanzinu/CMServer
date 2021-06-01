@@ -401,7 +401,7 @@ public void serviceList() {
 				// store_menu_table update
 				String strQuery = "insert into group_menu_table (group_id,member,menu,price) values ('"+group_id+"'," +
 						"'"+UserName+"','"+menu+"','"+amount+"');";		
-				printMessage(" QUERY : "+strQuery);
+				//printMessage(" QUERY : "+strQuery);
 				int Result1 = m_cmdb.sendUpdateQuery(strQuery, m_cmInfo);
 				if (Result1 > 0 ) printMessage("C2 : store_menu_table update success");
 				
@@ -422,9 +422,15 @@ public void serviceList() {
 					
 					if ( collected_amount >= least_price ) 
 					{
-//						MakeOrder() ;
-						MakePublish(sessionName,"S2##"+group_id) ; // session
-						MakePublish(group_id,"S2##"+group_id) ; // group 
+//						MakeOrder(group_id) ;
+						MakePublish("Hwa-yang","S2##"+group_id+"##"+UserName) ; // session
+						//MakePublish(group_id,"S2##"+group_id) ; // group 
+						
+						int a =removeGroup("Hwa-yang",Integer.parseInt(group_id));
+						if(a == 0) {
+							printMessage("remove group is success" );
+						}
+						break;
 					
 					}
 					
@@ -438,7 +444,7 @@ public void serviceList() {
 			
 				
 				
-				String pubMsg = "S1"+"##"+group_id+"##"+group_host + "##" + storeName + "##" + storeCat + "##" + Integer.toString(collected_amount) + "##" + Integer.toString(least_price) ;
+				String pubMsg = "S1"+"##"+group_id+"##"+UserName + "##" + storeName + "##" + storeCat + "##" + Integer.toString(collected_amount) + "##" + Integer.toString(least_price) ;
 				printMessage("pubMsg :"+pubMsg);
 				// publish to session
 				boolean bRequest = MakePublish(sessionName,pubMsg);
@@ -455,7 +461,55 @@ public void serviceList() {
 		return true;
 	}
 
-//	public boolean MakeOrder(String )
+public boolean MakeOrder(String group_id) {
+		
+		int amount = 0;
+		String member = "a";
+		int i = 0;
+		int j = 1;
+		ResultSet result2 = m_cmdb.sendSelectQuery("select count(*) from group_menu_table where group_id =  '"+group_id+"';", m_cmInfo) ;
+		try {
+			
+			result2.next();
+			i = result2.getInt(1);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		
+		
+		while(i+1 != j) {
+			String user = member;
+			
+			ResultSet result1 = m_cmdb.sendSelectQuery("select * from group_menu_table where group_id =  '"+group_id+"';", m_cmInfo) ;
+			try {
+				for(int k =0; k< j; k++)
+					result1.next();
+				member = result1.getString("member");
+				amount = result1.getInt("price");
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+			
+			printMessage(member + " "+amount);
+			String strQuery1 = "update deposit_db set deposit = deposit-"+Integer.toString(amount)+" where userName = '"+member+"';";
+			int Result1 = m_cmdb.sendUpdateQuery(strQuery1, m_cmInfo);
+			if (Result1 > 0 ) printMessage("C2 : deposit_table update success");
+		
+			j++;
+		}
+		//MakePublish("Hwa-yang","S2##주문완료");
+		
+		
+		
+		
+		
+		
+		return true;
+	}
 	
 	
 
@@ -708,7 +762,7 @@ public void serviceList() {
 		session.removeGroup(gname);
 		
 		//conf
-		removeConf(group_id);
+		//removeConf(group_id);
 		
 		//DB
 		int delete_check = deleteGroup(gname);
