@@ -5,7 +5,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 
 import kr.ac.konkuk.ccslab.cm.entity.CMSessionInfo;
-import kr.ac.konkuk.ccslab.cm.entity.CMUser;
 import kr.ac.konkuk.ccslab.cm.event.CMDummyEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMInterestEvent;
@@ -14,7 +13,6 @@ import kr.ac.konkuk.ccslab.cm.event.handler.CMAppEventHandler;
 import kr.ac.konkuk.ccslab.cm.event.mqttevent.CMMqttEvent;
 import kr.ac.konkuk.ccslab.cm.event.mqttevent.CMMqttEventPUBLISH;
 import kr.ac.konkuk.ccslab.cm.info.CMInfo;
-import kr.ac.konkuk.ccslab.cm.info.CMInteractionInfo;
 import kr.ac.konkuk.ccslab.cm.manager.CMMqttManager;
 import kr.ac.konkuk.ccslab.cm.stub.CMClientStub;
 
@@ -25,7 +23,7 @@ public class TPClientEventHandler implements CMAppEventHandler {
 	private CMMqttManager m_mqttManager ;
 	private CMInfo m_cmInfo ;
 	
-	private JTextArea chatWindow = null;
+	private JTextArea chatWindow;
 	
 	public TPClientEventHandler(CMClientStub stub, TPClient client) {
 		m_clientStub = stub;
@@ -203,8 +201,26 @@ public class TPClientEventHandler implements CMAppEventHandler {
 		switch(se.getID())
 		{
 		case CMSessionEvent.RESPONSE_SESSION_INFO:
-			processRESPONSE_SESSION_INFO(se);
+			String[] session_name = new String[3];
+			 session_name=processRESPONSE_SESSION_INFO(se);
+			m_client.changeSessionB(session_name);
 			break;
+		case CMSessionEvent.LOGIN_ACK:
+			if(se.isValidUser() == 0 )
+			{
+				System.err.println("failed login");
+				m_client.loginpage(se);
+			}
+			else if(se.isValidUser() == -1 )
+			{
+				System.err.println("alreay login");
+				m_client.loginpage(se);
+			}
+			else
+			{
+				System.out.println("success");
+				m_client.loginpage(se);
+			}
 		default:
 			return;
 		}	
@@ -233,8 +249,10 @@ public class TPClientEventHandler implements CMAppEventHandler {
 	}
 	
 		
-		private void processRESPONSE_SESSION_INFO(CMSessionEvent se)
+		private String[] processRESPONSE_SESSION_INFO(CMSessionEvent se)
 		{
+			String[] session_name=new String[3];
+			int i=0;
 			Iterator<CMSessionInfo> iter = se.getSessionInfoList().iterator();
 			
 			System.out.format("%-60s%n", "------------------------------------------------------------");
@@ -246,7 +264,10 @@ public class TPClientEventHandler implements CMAppEventHandler {
 				CMSessionInfo tInfo = iter.next();
 				System.out.format("%-20s%-20s%-10d%-10d%n", tInfo.getSessionName(), tInfo.getAddress(), 
 						tInfo.getPort(), tInfo.getUserNum());
+				session_name[i]=tInfo.getSessionName();
+				i++;
 			}
+			return session_name;
 		}
 		
 		public void setWindow(JTextArea area) {
