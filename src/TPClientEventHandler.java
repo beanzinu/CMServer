@@ -148,6 +148,26 @@ public class TPClientEventHandler implements CMAppEventHandler {
 			CMMqttEventPUBLISH string = (CMMqttEventPUBLISH) cme ;
 			String msg = string.getAppMessage() ;
 			
+			// User entered existing group
+			// update GROUP INFO UI if that is my group
+			// (ex) USER##1 <- group member changed in group "1"
+			StringTokenizer tok = new StringTokenizer(msg,"##");
+			String CheckEnter = tok.nextToken();
+			if(CheckEnter.equals("USER"))
+			{
+				// Get  Update Group Info
+				String Group = tok.nextToken();
+				// Get My Group Info
+				String MyGroup = m_clientStub.getMyself().getCurrentGroup();
+
+				// someone Joined my GROUP
+				if (Group.equals(MyGroup))
+					chatWindow.append("NEW USER\n");
+				// someone LEFT ( User might be not MY GROUP )
+				else if(Group.equals("all")&&!MyGroup.equals("g1"))
+					chatWindow.append("Somebody Logged out\n");
+				return;
+			}
 			
 			
 			String topic , group_id, UserName ;
@@ -164,7 +184,8 @@ public class TPClientEventHandler implements CMAppEventHandler {
 				chatWindow.append("�쁽�옱 �굹�쓽 洹몃９ :" + Mygroup +" �꽦怨듭쟻�쑝濡� 李몄뿬�븯���뒿�땲�떎.\n");
 				
 				if(topic.equals("S2")) {
-					chatWindow.append(group_id + "二쇰Ц �셿猷�");
+
+				chatWindow.append(group_id + "번 그룹 주문 완료");
 
 					JOptionPane aa=new JOptionPane();
 					aa.showMessageDialog(null,"二쇰Ц�씠 �셿猷뚮릺�뿀�뒿�땲�떎.");

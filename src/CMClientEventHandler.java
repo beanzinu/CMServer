@@ -68,7 +68,10 @@ public class CMClientEventHandler implements CMAppEventHandler {
 	}
 	
 	
-	
+	private void processMemeberEvent(CMEvent cme) {
+		
+		
+	}
 	
 	
 	private void processSessionEvent(CMEvent cme)

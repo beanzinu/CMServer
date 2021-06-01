@@ -260,7 +260,7 @@ public class ServerDemo extends JFrame {
 		
 	}
 public void serviceList() {
-		
+	
 		// 서버에서 제공하는 서비스에 대해서 설명
 				printMessage("------------------------------");
 				printMessage("1. exit : Terminate CM");
