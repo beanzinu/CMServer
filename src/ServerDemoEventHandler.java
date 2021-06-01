@@ -15,6 +15,7 @@ import kr.ac.konkuk.ccslab.cm.manager.CMDBManager;
 import kr.ac.konkuk.ccslab.cm.stub.CMServerStub;
 
 public class ServerDemoEventHandler implements CMAppEventHandler {
+	private static String userInfo = "현재 로그인 현황\n";
 	private ServerDemo m_server;
 	private CMServerStub m_serverStub;
 	private CMInfo m_cmInfo;
@@ -22,6 +23,7 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 	public ServerDemoEventHandler(CMServerStub serverStub,ServerDemo server) {
 		m_serverStub = serverStub ;
 		m_server = server ;
+	
 
 	}
 	// Event 수신 시 어떤 타입인지 확인
@@ -83,6 +85,7 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 		CMSessionEvent se = (CMSessionEvent) cme;
 		String ID = se.getUserName();
 		String pwd = se.getPassword();
+		String user = se.getSender();
 		
 		switch(se.getID())
 		{
@@ -103,11 +106,16 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 				{
 					printMessage("["+ID+"] authentication succeeded.");
 					m_serverStub.replyEvent(cme, 1);
+					userInfo=userInfo+ID+"\n";
+					SendUserInfo(user);
 				}
 			}
 			break;
-		case CMSessionEvent.LOGOUT:
+		case CMSessionEvent.LOGOUT:{
 			printMessage("["+ID+"] logs out.");
+			userInfo=userInfo.replace("\n"+ID+"\n","\n");
+			SendUserInfo(user);
+		}
 			break;
 		case CMSessionEvent.REQUEST_SESSION_INFO:
 			printMessage("["+ID+"] requests session information.");
@@ -161,6 +169,14 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 			printMessage(string.getSender() +":"+ string.getAppMessage());
 		}
 		
+	}
+	
+	private void SendUserInfo(String user) {
+		String header="USER##";
+		CMDummyEvent e = new CMDummyEvent();
+		e.setDummyInfo(header+userInfo);
+		if (m_serverStub.broadcast(e)) 
+			printMessage("Broadcast login user catalog");
 	}
 	
 	private void SendGroupInfo(String user) {
