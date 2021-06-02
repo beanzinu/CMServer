@@ -74,6 +74,7 @@ public class TPClient extends JFrame {
 	private JButton location1;
 	private JButton location2;
 	private JButton location3;
+	private JTextArea userInfo;
 	
 	private String UserSessionInfo;
 	//
@@ -227,12 +228,15 @@ public class TPClient extends JFrame {
 		
 		panelJoin = new JPanel();
 		//panelJoin.setBackground(Color.gray);
-		panelJoin.setLayout(new GridLayout(1,3));
+		panelJoin.setLayout(new GridLayout(1,4));
 		panelJoin.setBounds(250-(panelJoinX/2), 350-(panelJoinY/2), panelJoinX, panelJoinY);
 		
 		location1 = new JButton("location1");
 		location2 = new JButton("location2");
 		location3 = new JButton("location3");
+		userInfo = new JTextArea("현재 활동중인 user 목록\n");
+		userInfo.setBackground(Color.LIGHT_GRAY);
+		JScrollPane scrolluser = new JScrollPane(userInfo, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		
 		location1.addActionListener(cmActionListener);
 		location2.addActionListener(cmActionListener);
@@ -242,6 +246,7 @@ public class TPClient extends JFrame {
 		panelJoin.add(location1);
 		panelJoin.add(location2);
 		panelJoin.add(location3);
+		panelJoin.add(scrolluser);
 		
 		c.add(panelJoin);
 		
@@ -353,6 +358,11 @@ public class TPClient extends JFrame {
 		{
 			m_clientStub.loginCM(strUserName, strPassword);
 		}
+		CMDummyEvent e = new CMDummyEvent();
+//		e.setDummyInfo("REQ_USER");
+//		CMInteractionInfo interInfo = m_clientStub.getCMInfo().getInteractionInfo();
+//		String strDefServer = interInfo.getDefaultServerInfo().getServerName();
+//		m_clientStub.send(e,strDefServer);
 	}
 	
 	public void loginpage(CMSessionEvent loginAckEvent) {
@@ -378,6 +388,10 @@ public class TPClient extends JFrame {
 				userIdLabel.setText("|| "+ strUserName +" ||");
 			}			
 		}
+	}
+	
+	public void userInfo(String user) {
+		userInfo.setText(user);
 	}
 
 	

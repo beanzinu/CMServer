@@ -78,7 +78,7 @@ public class TPClientEventHandler implements CMAppEventHandler {
 		}
 	}
 	
-	// 임시로 만들어 놓음
+	// �엫�떆濡� 留뚮뱾�뼱 �넃�쓬
 	private void processDummyEvent(CMEvent cme) {
 		
 		CMDummyEvent due = (CMDummyEvent) cme;
@@ -96,9 +96,9 @@ public class TPClientEventHandler implements CMAppEventHandler {
 			m_clientStub.changeGroup(group_id);
 		}	
 		else if(topic.equals("REQ")) {
-			// REQ -> DB 요청결과 
+			// REQ -> DB �슂泥�寃곌낵 
 			String Req_msg1 = token.nextToken();
-			// store DB 결과
+			// store DB 寃곌낵
 			if (Req_msg1.equals("store")) 
 			{
 				if(token.hasMoreTokens()==false)
@@ -129,9 +129,11 @@ public class TPClientEventHandler implements CMAppEventHandler {
 			m_client.CheckGroupDB(Req_msg);
 			}
 		}
-		
-		
-		
+		else if(topic.equals("USER"))
+		{
+			String userInfo=token.nextToken();
+			m_client.userInfo(userInfo);
+		}
 		
 	}
 	
@@ -199,17 +201,18 @@ public class TPClientEventHandler implements CMAppEventHandler {
 			UserName = token.nextToken();
 			if(Firstgroup.equals("g1"))
 			{
-				System.out.println(group_id + "바뀔그룹");
+				System.out.println(group_id + "諛붾�붽렇猷�");
 				m_clientStub.changeGroup(group_id);
 				String Mygroup =myself.getCurrentGroup();
 
-				chatWindow.append("현재 나의 그룹 :" + Mygroup +" 성공적으로 참여하였습니다.\n");
+				chatWindow.append("�쁽�옱 �굹�쓽 洹몃９ :" + Mygroup +" �꽦怨듭쟻�쑝濡� 李몄뿬�븯���뒿�땲�떎.\n");
 				
 				if(topic.equals("S2")) {
-					chatWindow.append(group_id + "번 그룹 주문 완료");
+
+				chatWindow.append(group_id + "번 그룹 주문 완료");
 
 					JOptionPane aa=new JOptionPane();
-					aa.showMessageDialog(null,"주문이 완료되었습니다.");
+					aa.showMessageDialog(null,"二쇰Ц�씠 �셿猷뚮릺�뿀�뒿�땲�떎.");
 				}
 			}
 			else {
@@ -217,17 +220,17 @@ public class TPClientEventHandler implements CMAppEventHandler {
 				String Mygroup =myself.getCurrentGroup();
 				String MyName = myself.getName();
 
-				//chatWindow.append("현재 나의 그룹" + Mygroup);
+				//chatWindow.append("�쁽�옱 �굹�쓽 洹몃９" + Mygroup);
 				
 				if(group_id.equals(Mygroup)) {
 					if(topic.equals("S1")) {
-						chatWindow.append(UserName + "님이 "+group_id + "번째 그룹에 참여하였습니다.\n");
+						chatWindow.append(UserName + "�떂�씠 "+group_id + "踰덉㎏ 洹몃９�뿉 李몄뿬�븯���뒿�땲�떎.\n");
 
 					}
 					else if(topic.equals("S2")) {
-						chatWindow.append(group_id + "번그룹 주문완료");
+						chatWindow.append(group_id + "踰덇렇猷� 二쇰Ц�셿猷�");
 						JOptionPane aa=new JOptionPane();
-						aa.showMessageDialog(null,"주문이 완료되었습니다.");
+						aa.showMessageDialog(null,"二쇰Ц�씠 �셿猷뚮릺�뿀�뒿�땲�떎.");
 					}
 				//chatWindow.append(string.getAppMessage()+"\n");
 				}
@@ -288,9 +291,9 @@ public class TPClientEventHandler implements CMAppEventHandler {
 			//System.out.println("<"+ie.getUserName()+">: "+ie.getTalk());
 			//printMessage("<"+ie.getUserName()+">: "+ie.getTalk()+"\n");
 			//m_client.CreateWindow.chatWindow.setText("");
-			// 내가 기존 그룹에 들어갔을 때
+			// �궡媛� 湲곗〈 洹몃９�뿉 �뱾�뼱媛붿쓣 �븣
 //			m_client.joinWindow.chattingWindow.chatWindow.append("<"+ie.getUserName()+">: "+ie.getTalk()+"\n");
-			// 새로운 그룹을 만들었을 때 ( 내가 방장) 
+			// �깉濡쒖슫 洹몃９�쓣 留뚮뱾�뿀�쓣 �븣 ( �궡媛� 諛⑹옣) 
 			chatWindow.append("<"+ie.getUserName()+">: "+ie.getTalk()+"\n");
 			break;
 		default:
