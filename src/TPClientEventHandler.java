@@ -1,5 +1,6 @@
 import java.util.Iterator;
 import java.util.StringTokenizer;
+import java.util.Vector;
 
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
@@ -153,18 +154,41 @@ public class TPClientEventHandler implements CMAppEventHandler {
 			String CheckEnter = tok.nextToken();
 			if(CheckEnter.equals("USER"))
 			{
-				// Get  Update Group Info
-				String Group = tok.nextToken();
-				// Get My Group Info
-				String MyGroup = m_clientStub.getMyself().getCurrentGroup();
-
-				// someone Joined my GROUP
-				if (Group.equals(MyGroup))
-					chatWindow.append("NEW USER\n");
-				// someone LEFT ( User might be not MY GROUP )
-				else if(Group.equals("all")&&!MyGroup.equals("g1"))
-					chatWindow.append("Somebody Logged out\n");
-				return;
+//				// Get  Update Group Info
+//				String Group = tok.nextToken();
+//				// Get My Group Info
+//				String MyGroup = m_clientStub.getMyself().getCurrentGroup();
+//
+//				// someone Joined my GROUP
+//				if (Group.equals(MyGroup))
+//					chatWindow.append("NEW USER\n");
+//				// someone LEFT ( User might be not MY GROUP )
+//				else if(Group.equals("all")&&!MyGroup.equals("g1"))
+//					chatWindow.append("Somebody Logged out\n");
+//				return;
+				   // Get  Update Group Info
+	            String Group = tok.nextToken();
+	            // Get My Group Info
+	            String MyGroup = m_clientStub.getMyself().getCurrentGroup();
+	            Vector<CMUser> userlist= new Vector<CMUser>();
+	            userlist = m_clientStub.getGroupMembers().getAllMembers();
+	            String userstring = "#############USERLIST#############\n";
+	            for(int i=0;i<userlist.size();i++)
+	            {
+	               userstring = userstring+"user "+(i+1)+" :"+userlist.elementAt(i).getName()+"\n";
+	            }
+	            userstring = userstring+"##################################\n";
+	            // someone Joined my GROUP
+	            if (Group.equals(MyGroup))
+	               {
+	               chatWindow.append(userstring);
+	               }
+	            // someone LEFT ( User might be not MY GROUP )
+	            else if(Group.equals("all")&&!MyGroup.equals("g1"))
+	               {
+	               chatWindow.append(userstring);
+	               }
+	            return;
 			}
 			
 			
