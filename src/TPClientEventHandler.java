@@ -98,9 +98,9 @@ public class TPClientEventHandler implements CMAppEventHandler {
 			m_clientStub.changeGroup(group_id);
 		}	
 		else if(topic.equals("REQ")) {
-			// REQ -> DB �슂泥�寃곌낵 
+			// REQ -> DB request result
 			String Req_msg1 = token.nextToken();
-			// store DB 寃곌낵
+			// store DB result
 			if (Req_msg1.equals("store")) 
 			{
 				if(token.hasMoreTokens()==false)

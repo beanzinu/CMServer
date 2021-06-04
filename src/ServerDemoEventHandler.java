@@ -27,7 +27,7 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 	
 
 	}
-	// Event ���� �� � Ÿ������ Ȯ��
+	//check event type
 	@Override
 	public void processEvent(CMEvent cme) {
 		// TODO Auto-generated method stub
@@ -101,7 +101,7 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 	}
 	
 	
-	// �α��� �� ���� ����
+	// manage login session
 	private void LOGIN(CMEvent cme)
 	{
 		CMConfigurationInfo confInfo = m_serverStub.getCMInfo().getConfigurationInfo();
@@ -112,10 +112,9 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 		
 		switch(se.getID())
 		{
-		// �α��� ����
 		case CMSessionEvent.LOGIN:
 			printMessage("["+ID+"] requests login.");
-			// UserInfo DB�� ���� �� ( ������ ȸ�������� �� ���)
+			
 			if(confInfo.isLoginScheme())
 			{
 				boolean ret = CMDBManager.authenticateUser(ID,pwd, 
@@ -160,7 +159,7 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 //			+se.getChannelNum()+").");
 //			break;
 		case CMSessionEvent.REGISTER_USER:
-			
+			int a = m_server.InsertDeposit(ID);
 			printMessage("User registration requested by user["+ID+"].");
 			break;
 		case CMSessionEvent.DEREGISTER_USER:
@@ -267,7 +266,7 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 			{
 				String store_name = result.getString("store_name");
 				int least_price = result.getInt("least_price");
-				sendMessage = sendMessage + "-----------------------------------------" + '\n'
+				sendMessage = sendMessage + "---------------------" + '\n'
 				+ "[STORE NAME] : " + store_name + '\n' 
 				+ "   least price : " + Integer.toString(least_price) + '\n';
 			}
@@ -296,7 +295,7 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 				String menu_name = result.getString("menu");
 				int price = result.getInt("price");
 				sendMessage = sendMessage +		
-				"-----------------------------------------" + '\n'
+				"---------------------" + '\n'
 				+ "[MENU NAME] : " + menu_name + '\n' 
 				+ "[price] : " + Integer.toString(price) + '\n';
 			}
@@ -337,7 +336,7 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 						String menu_name = result.getString("menu");
 						int price = result.getInt("price");
 						sendMessage = sendMessage +		
-						"-----------------------------------------" + '\n'
+						"---------------------" + '\n'
 						+ "[MENU NAME] : " + menu_name + '\n' 
 						+ "[price] : " + Integer.toString(price) + '\n';
 					}

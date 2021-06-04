@@ -234,9 +234,10 @@ public class TPClient extends JFrame {
 		location1 = new JButton("location1");
 		location2 = new JButton("location2");
 		location3 = new JButton("location3");
-		userInfo = new JTextArea("���� Ȱ������ user ���\n");
+		userInfo = new JTextArea("");
 		userInfo.setBackground(Color.LIGHT_GRAY);
-		JScrollPane scrolluser = new JScrollPane(userInfo, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		userInfo.setEditable(false);
+		JScrollPane scrolluser = new JScrollPane(userInfo, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		
 		location1.addActionListener(cmActionListener);
 		location2.addActionListener(cmActionListener);
@@ -1266,7 +1267,7 @@ class joinGroupWindow extends JFrame{
 		//---------------panelmenu---------------------//
 		
 		panelMenu = new JPanel(new BorderLayout());
-		panelMenu.setBounds(0, 20, 400, 575);
+		panelMenu.setBounds(0, 35, 400, 565);
 		
 		menuLabel = new JLabel("Choose Menu");
 		menuLabel.setFont(menuLabel.getFont().deriveFont(18.0f));
@@ -1592,6 +1593,8 @@ class ChattingWindow extends JFrame{
 		String chatMsg = chatInput.getText();
 		
 		m_clientStub.chat("/g", chatMsg);
+		
+		chatInput.setText("");
 	}
 	
 class MyActionListener implements ActionListener {

@@ -70,11 +70,11 @@ public class ServerDemo extends JFrame {
 	JScrollPane scrollPane = new JScrollPane(LogArea);
 	JPanel P1 = new JPanel(new FlowLayout());
 	JTextField ServerInput = new JTextField(20);
-	JButton ServerInputButton = new JButton("Ȯ��");
+	JButton ServerInputButton = new JButton("enter");
 	//------------------------------------------------------------
 	
 	
-	// ������
+	// Server
 	public ServerDemo()
 	{
 		m_serverStub = new CMServerStub();
@@ -103,7 +103,7 @@ public class ServerDemo extends JFrame {
 			System.err.println("CM initialization error!");
 			return;
 		}
-		else StartService() ; //  ���� ���� ���� �� ���� ����
+		else StartService() ;  //  after server open start service
 	}
 	public void StartService()  {
 		// CM Start
@@ -221,13 +221,13 @@ public class ServerDemo extends JFrame {
 				else printMessage("---------WRONG COMMAND -------------");
 					
 				
-				// Input ����
+				// Input clear
 				ServerInput.setText("");
 			}
 		});
 		
 		
-		// �������� �����ϴ� ���񽺿� ���ؼ� ����
+		//explain service served from server
 		serviceList(); 
 		// ---------------------TEST AREA ----------------------------
 		
@@ -261,7 +261,7 @@ public class ServerDemo extends JFrame {
 	}
 public void serviceList() {
 	
-		// �������� �����ϴ� ���񽺿� ���ؼ� ����
+		//explain services
 				printMessage("------------------------------");
 				printMessage("1. exit : Terminate CM");
 				printMessage("2. DBconf : check my DB conf");
@@ -366,7 +366,7 @@ public void serviceList() {
 			}
 			case "C2" :
 			{
-				// C2 ## group_id ## �޴�
+				// C2 ## group_id ## menu
 				String sessionName = e.getHandlerSession();
 				printMessage(sessionName);
 				String group_id = token.nextToken();
@@ -378,7 +378,7 @@ public void serviceList() {
 				String storeName = null ;
 				String group_host = null ;
 				
-				// ���� �̸� ���ϱ�
+				// get store name
 				ResultSet result1 = m_cmdb.sendSelectQuery("select store_name from group_table where group_id =  '"+group_id+"';" ,m_cmInfo) ;
 				try {
 					result1.next() ;
@@ -388,7 +388,7 @@ public void serviceList() {
 					e1.printStackTrace();
 				}
 				
-				// �޴��� �ݾ� ���ϱ�
+				//get menu and price
 				ResultSet result2 = m_cmdb.sendSelectQuery("select * from store_menu_table where store_name =  '"+storeName+"' and menu = '"+menu+"';", m_cmInfo) ;
 				try {
 					result2.next() ;
@@ -431,10 +431,7 @@ public void serviceList() {
 						//MakePublish("Hwa-yang","S2##"+group_id+"##"+UserName) ; // session
 						//MakePublish(group_id,"S2##"+group_id) ; // group 
 						
-//						int a =removeGroup("Hwa-yang",Integer.parseInt(group_id));
-//						if(a == 0) {
-//							printMessage("remove group is success" );
-//						}
+						
 						// break;
 					}
 					
@@ -518,7 +515,7 @@ public void serviceList() {
 	
 
 	public boolean MakePublish(String strTopic,String strMsg) {
-		// ���� -> Ŭ���̾�Ʈ �޽��� ����( Session or Group ) 
+		// server-> client send message( Session or Group )   
 		byte qos = (byte) 0 ;
 		boolean bDupFlag = false ;
 		boolean bRetainFlag = false ;
@@ -622,7 +619,7 @@ public void serviceList() {
 	      
 	      for(int i=0;i<s_num;i++) session=iter.next();
 	      
-	      //���ο� group�� �̸�
+	      //new group name
 	      String strQuery = "select MAX(group_id) as max from group_table;"; //��� test�� �ϴ� Hwa-yang���� �ϹǷ� hwa-yang �� ����
 	      CMDBManager.init(cmInfo);
 	      //CMDBManager.connectDB(cmInfo);
@@ -639,30 +636,30 @@ public void serviceList() {
 	      printMessage(Integer.toString(groupNum));
 	      if(groupNum>9) return -1;
 	      
-	      //���ο� group�̸�
+	      //new group name
 	      String gname = new String(Integer.toString(groupNum));
-	      //���ο� group�� �ּ�
+	      //new group ip for session.creategroup()
 	      StringBuffer gaddrformat= new StringBuffer("224.1.1."+Integer.toString(s_num+2));
 	      gaddrformat.replace(6, 7, Integer.toString(groupNum+1));
 	      String gaddr= new String(gaddrformat.toString());
 	      System.out.println(gaddr);
 	      
-	      //���ο� group�� port
+	      //new group port session.creategroup()
 	      StringBuffer gportformat= new StringBuffer("700"+Integer.toString(s_num+1));
 	      gportformat.replace(2, 3, Integer.toString(groupNum));
 	      String s_gport= new String(gportformat.toString());
 	      int gport= Integer.parseInt(s_gport);
 	      System.out.println(gport);
 	      
-//	      //group ����
+//	      //group create
 //	      if(session.createGroup(gname, gaddr, gport) == null){
 //	         return -1;
 //	      }
 //	      
-//	      //conf ����
+//	      //conf change
 //	      insertConf(groupNum+1,gname,gaddr,gport);
 	      
-	      //group DB���� �߰�
+	      //group DB change
 	      int insert_check=InsertGroup(groupNum, group_host , restaurant, res_category, collected_amount, least_price);
 	      if(insert_check == -1) {
 	         printMessage("send insert query fail\n");
@@ -680,7 +677,7 @@ public void serviceList() {
 		String strText="";
 		int nBuffer;
 		try {
-			// ���� �б�
+			
 			BufferedReader buffRead = new BufferedReader(new FileReader("./cm-session1.conf"));  
 	        while ((nBuffer = buffRead.read()) != -1)  
 	        {  
@@ -692,9 +689,9 @@ public void serviceList() {
 	        
 	        BufferedWriter buffWrite = new BufferedWriter(new FileWriter("./cm-session1.conf"));  
 	        String Text = strText.replaceAll("GROUP_NUM 1","GROUP_NUM 2");  
-	        // ���� ����  
+	       
 	        buffWrite.write(Text, 0, Text.length());  
-	        // ���� �ݱ�  
+	       
 	        buffWrite.flush();  
 	        buffWrite.close();  
 
@@ -731,7 +728,7 @@ public void serviceList() {
 				+Integer.toString(group_id)+"','"+group_host+"','"+restaurant+"','"+res_category+"','"+collected_amount+"','"+least_price+"');";
 		CMDBManager.init(cmInfo);
 		//boolean a= CMDBManager.connectDB(cmInfo);
-		//System.out.println("connect sucess: "+a);
+		//System.out.println("connect success: "+a);
 		int ret = CMDBManager.sendUpdateQuery(strQuery, cmInfo);
 
 		if(ret == -1)
@@ -747,10 +744,34 @@ public void serviceList() {
 		
 	}
 	
+	public int InsertDeposit(String username) {
+		CMInfo cmInfo=m_serverStub.getCMInfo();
+
+		String strQuery = "insert into deposit_table (userName, deposit) values ('"+username+"',"+"'100000'"+");";
+		CMDBManager.init(cmInfo);
+		//boolean a= CMDBManager.connectDB(cmInfo);
+		//System.out.println("connect success: "+a);
+		int ret = CMDBManager.sendUpdateQuery(strQuery, cmInfo);
+		
+		if(ret == -1)
+		{
+			System.out.println("InsertDeposit, error!");
+			return ret;
+		}
+
+		if(CMInfo._CM_DEBUG)
+			System.out.println("InsertDeposit, return value("+ret+").");
+
+		return ret;
+		
+	}
+	
+	
 	public int removeGroup(String s_name, int group_id) {
 		CMInteractionInfo interInfo = m_serverStub.getCMInfo().getInteractionInfo();
 		Iterator<CMSession> iter = interInfo.getSessionList().iterator();
 		
+		///////////////just for find session/////////
 		CMSession session=iter.next(); int s_num;
 		if(s_name.equals(new String("Hwa-yang"))) s_num=0;
 		else if(s_name.equals(new String("Ja-yang"))) s_num=1;
@@ -761,9 +782,12 @@ public void serviceList() {
 		}
 		
 		for(int i=0;i<s_num;i++) session=iter.next();
+		/////////////////////////////////
+		
 		String gname = Integer.toString(group_id);
+		
 		//session
-		session.removeGroup(gname);
+		//session.removeGroup(gname);
 		
 		//conf
 		//removeConf(group_id);
@@ -911,7 +935,7 @@ public void serviceList() {
 	
 	
 	
-	//---------------------------------------���� �α׿� ����Ʈ ----------------------------------
+	//---------------------------------------print in server log ----------------------------------
 	public void printMessage(String strText)
 	{
 		StyledDocument doc = LogArea.getStyledDocument();
@@ -957,6 +981,10 @@ public void serviceList() {
 				Thread.sleep(5000);
 				MakeOrder(group_id) ;
 				MakePublish("Hwa-yang","S2##"+group_id+"##"+userName) ; // session
+				int a =removeGroup("Hwa-yang",Integer.parseInt(group_id));
+				if(a == 0) {
+					printMessage("remove group is success" );
+				}
 			}catch(Exception e) {
 				
 			}
