@@ -16,7 +16,7 @@ import kr.ac.konkuk.ccslab.cm.manager.CMDBManager;
 import kr.ac.konkuk.ccslab.cm.stub.CMServerStub;
 
 public class ServerDemoEventHandler implements CMAppEventHandler {
-	private static String userInfo = "ÇöÀç ·Î±×ÀÎ ÇöÈ²\n";
+	private static String userInfo = "Online Users: \n";
 	private ServerDemo m_server;
 	private CMServerStub m_serverStub;
 	private CMInfo m_cmInfo;
@@ -27,7 +27,7 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 	
 
 	}
-	// Event ¼ö½Å ½Ã ¾î¶² Å¸ÀÔÀÎÁö È®ÀÎ
+	// Event ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½î¶² Å¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½
 	@Override
 	public void processEvent(CMEvent cme) {
 		// TODO Auto-generated method stub
@@ -101,7 +101,7 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 	}
 	
 	
-	// ·Î±×ÀÎ ¹× ¼¼¼Ç °ü¸®
+	// ï¿½Î±ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	private void LOGIN(CMEvent cme)
 	{
 		CMConfigurationInfo confInfo = m_serverStub.getCMInfo().getConfigurationInfo();
@@ -112,10 +112,10 @@ public class ServerDemoEventHandler implements CMAppEventHandler {
 		
 		switch(se.getID())
 		{
-		// ·Î±×ÀÎ °ü·Ã
+		// ï¿½Î±ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		case CMSessionEvent.LOGIN:
 			printMessage("["+ID+"] requests login.");
-			// UserInfo DB¿¡ ÀÖÀ» ½Ã ( À¯Àú°¡ È¸¿ø°¡ÀÔÀ» ÇÑ °æ¿ì)
+			// UserInfo DBï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ( ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½)
 			if(confInfo.isLoginScheme())
 			{
 				boolean ret = CMDBManager.authenticateUser(ID,pwd, 

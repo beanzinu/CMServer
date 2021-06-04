@@ -27,6 +27,8 @@ public class TPClientEventHandler implements CMAppEventHandler {
 	private CMInfo m_cmInfo ;
 	
 	private JTextArea chatWindow;
+	private JTextArea GroupWindow;
+	private JTextArea OrderWindow;
 	
 	public TPClientEventHandler(CMClientStub stub, TPClient client) {
 		m_clientStub = stub;
@@ -174,21 +176,23 @@ public class TPClientEventHandler implements CMAppEventHandler {
 	            String MyGroup = m_clientStub.getMyself().getCurrentGroup();
 	            Vector<CMUser> userlist= new Vector<CMUser>();
 	            userlist = m_clientStub.getGroupMembers().getAllMembers();
-	            String userstring = "#############USERLIST#############\n";
+	            String userstring="";
 	            for(int i=0;i<userlist.size();i++)
 	            {
 	               userstring = userstring+"user "+(i+1)+" :"+userlist.elementAt(i).getName()+"\n";
 	            }
-	            userstring = userstring+"##################################\n";
+	           
 	            // someone Joined my GROUP
 	            if (Group.equals(MyGroup))
 	               {
-	               chatWindow.append(userstring);
+	            	GroupWindow.setText("");
+	               GroupWindow.append(userstring);
 	               }
 	            // someone LEFT ( User might be not MY GROUP )
 	            else if(Group.equals("all")&&!MyGroup.equals("g1"))
 	               {
-	               chatWindow.append(userstring);
+	            	GroupWindow.setText("");
+	               GroupWindow.append(userstring);
 	               }
 	            return;
 			}
@@ -199,20 +203,40 @@ public class TPClientEventHandler implements CMAppEventHandler {
 			topic = token.nextToken();
 			group_id = token.nextToken();
 			UserName = token.nextToken();
+			String groupMsg = "";
+			
+			
 			if(Firstgroup.equals("g1"))
 			{
-				System.out.println(group_id + "諛붾�붽렇猷�");
+				if(topic.equals("S1")) {
+				String storeName = token.nextToken();
+				String storeCategory = token.nextToken();
+				String ca = token.nextToken();
+				String la = token.nextToken();
+				groupMsg = "Group : " + group_id + '\n'
+						+ "Store : " + storeName + '\n'
+						+ "collected amount : " + ca + '\n'
+						+ "least price : " + la + '\n' ;
+				OrderWindow.setText(groupMsg);
+				}
+				//System.out.println(group_id + "바뀔그룹");
+				
 				m_clientStub.changeGroup(group_id);
 				String Mygroup =myself.getCurrentGroup();
 
-				chatWindow.append("�쁽�옱 �굹�쓽 洹몃９ :" + Mygroup +" �꽦怨듭쟻�쑝濡� 李몄뿬�븯���뒿�땲�떎.\n");
+				chatWindow.append("현재 나의 그룹 :" + Mygroup +" 성공적으로 참여하였습니다.\n");
 				
 				if(topic.equals("S2")) {
+					
 
 				chatWindow.append(group_id + "번 그룹 주문 완료");
 
 					JOptionPane aa=new JOptionPane();
-					aa.showMessageDialog(null,"二쇰Ц�씠 �셿猷뚮릺�뿀�뒿�땲�떎.");
+					aa.showMessageDialog(null,"주문이 완료되었습니다.");
+					if(m_client.createWindow!=null)
+						m_client.createWindow.chattingwindow.dispose();
+					else 
+						m_client.joinWindow.chattingWindow.dispose();
 				}
 			}
 			else {
@@ -220,17 +244,28 @@ public class TPClientEventHandler implements CMAppEventHandler {
 				String Mygroup =myself.getCurrentGroup();
 				String MyName = myself.getName();
 
-				//chatWindow.append("�쁽�옱 �굹�쓽 洹몃９" + Mygroup);
+				//chatWindow.append("현재 나의 그룹" + Mygroup);
 				
 				if(group_id.equals(Mygroup)) {
+					
+				
 					if(topic.equals("S1")) {
-						chatWindow.append(UserName + "�떂�씠 "+group_id + "踰덉㎏ 洹몃９�뿉 李몄뿬�븯���뒿�땲�떎.\n");
+						String storeName = token.nextToken();
+						String storeCategory = token.nextToken();
+						String ca = token.nextToken();
+						String la = token.nextToken();
+						groupMsg = "Group : " + Mygroup + '\n'
+								+ "Store : " + storeName + '\n'
+								+ "collected amount : " + ca + '\n'
+								+ "least price : " + la + '\n' ;
+						OrderWindow.setText(groupMsg);
+						chatWindow.append(UserName + "님이 "+group_id + "번째 그룹에 참여하였습니다.\n");
 
 					}
 					else if(topic.equals("S2")) {
-						chatWindow.append(group_id + "踰덇렇猷� 二쇰Ц�셿猷�");
+						chatWindow.append(group_id + "번그룹 주문완료");
 						JOptionPane aa=new JOptionPane();
-						aa.showMessageDialog(null,"二쇰Ц�씠 �셿猷뚮릺�뿀�뒿�땲�떎.");
+						aa.showMessageDialog(null,"주문이 완료되었습니다.");
 					}
 				//chatWindow.append(string.getAppMessage()+"\n");
 				}
@@ -291,9 +326,9 @@ public class TPClientEventHandler implements CMAppEventHandler {
 			//System.out.println("<"+ie.getUserName()+">: "+ie.getTalk());
 			//printMessage("<"+ie.getUserName()+">: "+ie.getTalk()+"\n");
 			//m_client.CreateWindow.chatWindow.setText("");
-			// �궡媛� 湲곗〈 洹몃９�뿉 �뱾�뼱媛붿쓣 �븣
+			// 내가 기존 그룹에 들어갔을 때
 //			m_client.joinWindow.chattingWindow.chatWindow.append("<"+ie.getUserName()+">: "+ie.getTalk()+"\n");
-			// �깉濡쒖슫 洹몃９�쓣 留뚮뱾�뿀�쓣 �븣 ( �궡媛� 諛⑹옣) 
+			// 새로운 그룹을 만들었을 때 ( 내가 방장) 
 			chatWindow.append("<"+ie.getUserName()+">: "+ie.getTalk()+"\n");
 			break;
 		default:
@@ -326,6 +361,11 @@ public class TPClientEventHandler implements CMAppEventHandler {
 		public void setWindow(JTextArea area) {
 			chatWindow = area;
 		}
-		
+		public void setGroupWindow(JTextArea area) {
+			GroupWindow = area;
+		}
+		public void setOrderWindow(JTextArea area) {
+			OrderWindow = area;
+		}
 		
 }

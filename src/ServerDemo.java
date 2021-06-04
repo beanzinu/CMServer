@@ -70,11 +70,11 @@ public class ServerDemo extends JFrame {
 	JScrollPane scrollPane = new JScrollPane(LogArea);
 	JPanel P1 = new JPanel(new FlowLayout());
 	JTextField ServerInput = new JTextField(20);
-	JButton ServerInputButton = new JButton("È®ÀÎ");
+	JButton ServerInputButton = new JButton("È®ï¿½ï¿½");
 	//------------------------------------------------------------
 	
 	
-	// »ý¼ºÀÚ
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	public ServerDemo()
 	{
 		m_serverStub = new CMServerStub();
@@ -103,7 +103,7 @@ public class ServerDemo extends JFrame {
 			System.err.println("CM initialization error!");
 			return;
 		}
-		else StartService() ; //  ¼­¹ö ¿ÀÇÂ ¼º°ø ÈÄ ¼­ºñ½º ½ÃÀÛ
+		else StartService() ; //  ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	}
 	public void StartService()  {
 		// CM Start
@@ -221,13 +221,13 @@ public class ServerDemo extends JFrame {
 				else printMessage("---------WRONG COMMAND -------------");
 					
 				
-				// Input ºñ¿ì±â
+				// Input ï¿½ï¿½ï¿½ï¿½
 				ServerInput.setText("");
 			}
 		});
 		
 		
-		// ¼­¹ö¿¡¼­ Á¦°øÇÏ´Â ¼­ºñ½º¿¡ ´ëÇØ¼­ ¼³¸í
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ñ½º¿ï¿½ ï¿½ï¿½ï¿½Ø¼ï¿½ ï¿½ï¿½ï¿½ï¿½
 		serviceList(); 
 		// ---------------------TEST AREA ----------------------------
 		
@@ -261,7 +261,7 @@ public class ServerDemo extends JFrame {
 	}
 public void serviceList() {
 	
-		// ¼­¹ö¿¡¼­ Á¦°øÇÏ´Â ¼­ºñ½º¿¡ ´ëÇØ¼­ ¼³¸í
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ñ½º¿ï¿½ ï¿½ï¿½ï¿½Ø¼ï¿½ ï¿½ï¿½ï¿½ï¿½
 				printMessage("------------------------------");
 				printMessage("1. exit : Terminate CM");
 				printMessage("2. DBconf : check my DB conf");
@@ -366,7 +366,7 @@ public void serviceList() {
 			}
 			case "C2" :
 			{
-				// C2 ## group_id ## ¸Þ´º
+				// C2 ## group_id ## ï¿½Þ´ï¿½
 				String sessionName = e.getHandlerSession();
 				printMessage(sessionName);
 				String group_id = token.nextToken();
@@ -378,7 +378,7 @@ public void serviceList() {
 				String storeName = null ;
 				String group_host = null ;
 				
-				// °¡°Ô ÀÌ¸§ ±¸ÇÏ±â
+				// ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½Ï±ï¿½
 				ResultSet result1 = m_cmdb.sendSelectQuery("select store_name from group_table where group_id =  '"+group_id+"';" ,m_cmInfo) ;
 				try {
 					result1.next() ;
@@ -388,7 +388,7 @@ public void serviceList() {
 					e1.printStackTrace();
 				}
 				
-				// ¸Þ´ºÀÇ ±Ý¾× ±¸ÇÏ±â
+				// ï¿½Þ´ï¿½ï¿½ï¿½ ï¿½Ý¾ï¿½ ï¿½ï¿½ï¿½Ï±ï¿½
 				ResultSet result2 = m_cmdb.sendSelectQuery("select * from store_menu_table where store_name =  '"+storeName+"' and menu = '"+menu+"';", m_cmInfo) ;
 				try {
 					result2.next() ;
@@ -423,15 +423,19 @@ public void serviceList() {
 					if ( collected_amount >= least_price ) 
 					{
 						
-						MakeOrder(group_id) ;
-						MakePublish("Hwa-yang","S2##"+group_id+"##"+UserName) ; // session
+						// make Thread
+						
+						Thread t = new Test(group_id,UserName);
+						t.start();
+						//MakeOrder(group_id) ;
+						//MakePublish("Hwa-yang","S2##"+group_id+"##"+UserName) ; // session
 						//MakePublish(group_id,"S2##"+group_id) ; // group 
 						
-						int a =removeGroup("Hwa-yang",Integer.parseInt(group_id));
-						if(a == 0) {
-							printMessage("remove group is success" );
-						}
-						break;
+//						int a =removeGroup("Hwa-yang",Integer.parseInt(group_id));
+//						if(a == 0) {
+//							printMessage("remove group is success" );
+//						}
+						// break;
 					}
 					
 					
@@ -495,13 +499,13 @@ public void serviceList() {
 			
 			
 			printMessage(member + " "+amount);
-			String strQuery1 = "update deposit_db set deposit = deposit-"+Integer.toString(amount)+" where userName = '"+member+"';";
+			String strQuery1 = "update deposit_table set deposit = deposit-"+Integer.toString(amount)+" where userName = '"+member+"';";
 			int Result1 = m_cmdb.sendUpdateQuery(strQuery1, m_cmInfo);
 			if (Result1 > 0 ) printMessage("C2 : deposit_table update success");
 		
 			j++;
 		}
-		//MakePublish("Hwa-yang","S2##ì£¼ë¬¸?™„ë£?");
+		//MakePublish("Hwa-yang","S2##ì£¼ë¬¸?ï¿½ï¿½ï¿½?");
 		
 		
 		
@@ -514,7 +518,7 @@ public void serviceList() {
 	
 
 	public boolean MakePublish(String strTopic,String strMsg) {
-		// ¼­¹ö -> Å¬¶óÀÌ¾ðÆ® ¸Þ½ÃÁö Àü´Þ( Session or Group ) 
+		// ï¿½ï¿½ï¿½ï¿½ -> Å¬ï¿½ï¿½ï¿½Ì¾ï¿½Æ® ï¿½Þ½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½( Session or Group ) 
 		byte qos = (byte) 0 ;
 		boolean bDupFlag = false ;
 		boolean bRetainFlag = false ;
@@ -618,8 +622,8 @@ public void serviceList() {
 	      
 	      for(int i=0;i<s_num;i++) session=iter.next();
 	      
-	      //»õ·Î¿î groupÀÇ ÀÌ¸§
-	      String strQuery = "select MAX(group_id) as max from group_table;"; //¸ðµç test´Â ÀÏ´Ü Hwa-yang¿¡¼­ ÇÏ¹Ç·Î hwa-yang ¸¸ »ý°¢
+	      //ï¿½ï¿½ï¿½Î¿ï¿½ groupï¿½ï¿½ ï¿½Ì¸ï¿½
+	      String strQuery = "select MAX(group_id) as max from group_table;"; //ï¿½ï¿½ï¿½ testï¿½ï¿½ ï¿½Ï´ï¿½ Hwa-yangï¿½ï¿½ï¿½ï¿½ ï¿½Ï¹Ç·ï¿½ hwa-yang ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	      CMDBManager.init(cmInfo);
 	      //CMDBManager.connectDB(cmInfo);
 	      ResultSet rs = CMDBManager.sendSelectQuery(strQuery, m_cmInfo);
@@ -635,30 +639,30 @@ public void serviceList() {
 	      printMessage(Integer.toString(groupNum));
 	      if(groupNum>9) return -1;
 	      
-	      //»õ·Î¿î groupÀÌ¸§
+	      //ï¿½ï¿½ï¿½Î¿ï¿½ groupï¿½Ì¸ï¿½
 	      String gname = new String(Integer.toString(groupNum));
-	      //»õ·Î¿î groupÀÇ ÁÖ¼Ò
+	      //ï¿½ï¿½ï¿½Î¿ï¿½ groupï¿½ï¿½ ï¿½Ö¼ï¿½
 	      StringBuffer gaddrformat= new StringBuffer("224.1.1."+Integer.toString(s_num+2));
 	      gaddrformat.replace(6, 7, Integer.toString(groupNum+1));
 	      String gaddr= new String(gaddrformat.toString());
 	      System.out.println(gaddr);
 	      
-	      //»õ·Î¿î groupÀÇ port
+	      //ï¿½ï¿½ï¿½Î¿ï¿½ groupï¿½ï¿½ port
 	      StringBuffer gportformat= new StringBuffer("700"+Integer.toString(s_num+1));
 	      gportformat.replace(2, 3, Integer.toString(groupNum));
 	      String s_gport= new String(gportformat.toString());
 	      int gport= Integer.parseInt(s_gport);
 	      System.out.println(gport);
 	      
-//	      //group »ý¼º
+//	      //group ï¿½ï¿½ï¿½ï¿½
 //	      if(session.createGroup(gname, gaddr, gport) == null){
 //	         return -1;
 //	      }
 //	      
-//	      //conf ¼öÁ¤
+//	      //conf ï¿½ï¿½ï¿½ï¿½
 //	      insertConf(groupNum+1,gname,gaddr,gport);
 	      
-	      //group DB¿¡µµ Ãß°¡
+	      //group DBï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½
 	      int insert_check=InsertGroup(groupNum, group_host , restaurant, res_category, collected_amount, least_price);
 	      if(insert_check == -1) {
 	         printMessage("send insert query fail\n");
@@ -676,7 +680,7 @@ public void serviceList() {
 		String strText="";
 		int nBuffer;
 		try {
-			// ÆÄÀÏ ÀÐ±â
+			// ï¿½ï¿½ï¿½ï¿½ ï¿½Ð±ï¿½
 			BufferedReader buffRead = new BufferedReader(new FileReader("./cm-session1.conf"));  
 	        while ((nBuffer = buffRead.read()) != -1)  
 	        {  
@@ -688,9 +692,9 @@ public void serviceList() {
 	        
 	        BufferedWriter buffWrite = new BufferedWriter(new FileWriter("./cm-session1.conf"));  
 	        String Text = strText.replaceAll("GROUP_NUM 1","GROUP_NUM 2");  
-	        // ÆÄÀÏ ¾²±â  
+	        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½  
 	        buffWrite.write(Text, 0, Text.length());  
-	        // ÆÄÀÏ ´Ý±â  
+	        // ï¿½ï¿½ï¿½ï¿½ ï¿½Ý±ï¿½  
 	        buffWrite.flush();  
 	        buffWrite.close();  
 
@@ -782,7 +786,7 @@ public void serviceList() {
 		String findgport;
 		try {
 			fd = new File("./cm-session1.conf");
-			FileWriter fw = new FileWriter(fd, true);//ÀÌ¾î¾²±â
+			FileWriter fw = new FileWriter(fd, true);//ï¿½Ì¾î¾²ï¿½ï¿½
 			BufferedWriter bw = new BufferedWriter(fw);
 			FileReader fr = new FileReader(fd);
 			BufferedReader br = new BufferedReader(fr);
@@ -907,7 +911,7 @@ public void serviceList() {
 	
 	
 	
-	//---------------------------------------¼­¹ö ·Î±×¿¡ ÇÁ¸°Æ® ----------------------------------
+	//---------------------------------------ï¿½ï¿½ï¿½ï¿½ ï¿½Î±×¿ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ----------------------------------
 	public void printMessage(String strText)
 	{
 		StyledDocument doc = LogArea.getStyledDocument();
@@ -940,6 +944,26 @@ public void serviceList() {
 	
 
 	//-------------------------------------------------------------------------------------
+	
+	public class Test extends Thread {
+		String group_id ;
+		String userName ;
+		public Test(String s1,String s2) {
+			group_id = s1;
+			userName = s2;
+		}
+		public void run() {
+			try {
+				Thread.sleep(5000);
+				MakeOrder(group_id) ;
+				MakePublish("Hwa-yang","S2##"+group_id+"##"+userName) ; // session
+			}catch(Exception e) {
+				
+			}
+		}
+
+	}
+	
 	
 
 	

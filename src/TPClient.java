@@ -234,7 +234,7 @@ public class TPClient extends JFrame {
 		location1 = new JButton("location1");
 		location2 = new JButton("location2");
 		location3 = new JButton("location3");
-		userInfo = new JTextArea("ÇöÀç È°µ¿ÁßÀÎ user ¸ñ·Ï\n");
+		userInfo = new JTextArea("ï¿½ï¿½ï¿½ï¿½ È°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ user ï¿½ï¿½ï¿½\n");
 		userInfo.setBackground(Color.LIGHT_GRAY);
 		JScrollPane scrolluser = new JScrollPane(userInfo, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		
@@ -1479,7 +1479,13 @@ class ChattingWindow extends JFrame{
 	private JPanel panelChatRoom;
 	private JPanel panelChatInput;
 	
+	private JPanel P1,P2,P3;
+	private JLabel L1,L2 ;
+	public JTextArea T1,T2;
+	
 	private JLabel chatLabel;
+	
+ 
 	
 	public JTextArea chatWindow;
 	private JTextArea chatInput;
@@ -1513,11 +1519,39 @@ class ChattingWindow extends JFrame{
 		backBtn.setVisible(false);
 		
 		panelChat = new JPanel(new BorderLayout());
-		panelChat.setBounds(0, 45, 400, 520);
+		panelChat.setBounds(0, 145, 400, 420);
+		panelChat.setBackground(Color.GRAY);
 		
 		chatLabel = new JLabel("Chat");
-		chatLabel.setFont(chatLabel.getFont().deriveFont(18.0f));
+		//chatLabel.setFont(chatLabel.getFont().deriveFont(18.0f));
 		chatLabel.setHorizontalAlignment(JLabel.CENTER);
+		
+		//
+		P1 = new JPanel(new GridLayout(1,2));
+		P1.setBounds(0,0,400,20);
+		L1 = new JLabel("Group");
+		//L1.setFont(L1.getFont().deriveFont(18.0f));
+		L1.setHorizontalAlignment(JLabel.CENTER);
+		L2 = new JLabel("OrderInfo");
+		//L2.setFont(L2.getFont().deriveFont(18.0f));
+		L2.setHorizontalAlignment(JLabel.CENTER);
+		P1.add(L1); 
+		P1.add(L2);
+		
+		P2 = new JPanel(new GridLayout(1,2));
+		P2.setBounds(0,20,400,100);
+		T1 = new JTextArea();
+		T1.setBackground(Color.GRAY);
+		T1.setEditable(false);
+		T2 = new JTextArea();
+		T2.setBackground(Color.LIGHT_GRAY);
+		T2.setEditable(false);
+		P2.add(T1);
+		P2.add(T2);
+		
+		P3 = new JPanel();
+		P3.add(chatLabel);
+		P3.setBounds(0,120,400,20);
 		
 		panelChatRoom = new JPanel(new GridLayout(1,0));
 		panelChatInput = new JPanel(new FlowLayout());
@@ -1536,7 +1570,11 @@ class ChattingWindow extends JFrame{
 		panelChatInput.add(new JScrollPane(chatInput));
 		panelChatInput.add(chatSendBtn);
 		
-		panelChat.add(chatLabel,BorderLayout.NORTH);
+		//panelChat.add(chatLabel,BorderLayout.NORTH);
+		ChatWindowContainer.add(P1);
+		ChatWindowContainer.add(P2);
+		ChatWindowContainer.add(P3);
+		
 		panelChat.add(panelChatRoom,BorderLayout.CENTER);
 		panelChat.add(panelChatInput,BorderLayout.SOUTH);
 		
@@ -1546,7 +1584,8 @@ class ChattingWindow extends JFrame{
 		
 		// send handler chatWindow
 			m_eventHandler.setWindow(chatWindow);
-		
+			m_eventHandler.setGroupWindow(T1);
+			m_eventHandler.setOrderWindow(T2);
 	}
 	
 	public void ChatInUser() {
